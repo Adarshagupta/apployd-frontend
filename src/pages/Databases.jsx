@@ -44,10 +44,33 @@ import {
   Tooltip,
   Divider,
   useColorModeValue,
+  Container,
+  InputGroup,
+  InputLeftElement,
+  Progress,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  Spinner,
 } from '@chakra-ui/react';
-import { HiRefresh, HiExternalLink, HiPlus, HiTrash, HiDatabase, HiClock, HiServer } from 'react-icons/hi';
+import { 
+  HiRefresh, 
+  HiExternalLink, 
+  HiPlus, 
+  HiTrash, 
+  HiDatabase, 
+  HiClock, 
+  HiServer,
+  HiSearch,
+  HiClipboardCopy
+} from 'react-icons/hi';
 import { getTenants, getTimelines, createDatabase, getConnectionString, executeSql, neonApi } from '../api/neonApi';
 import DatabaseStatus from '../components/DatabaseStatus';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 const Databases = () => {
   const [tenantsData, setTenantsData] = useState([]);
@@ -59,6 +82,7 @@ const Databases = () => {
   const [error, setError] = useState(null);
   const [newDbName, setNewDbName] = useState('');
   const [selectedDb, setSelectedDb] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const toast = useToast();
@@ -68,7 +92,23 @@ const Databases = () => {
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const tableBg = useColorModeValue('white', 'gray.800');
   const tableHeaderBg = useColorModeValue('gray.50', 'gray.700');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
+  const hoverBg = useColorModeValue('purple.50', 'gray.700');
+  const textColor = useColorModeValue('gray.600', 'gray.400');
+  const subtleTextColor = useColorModeValue('gray.600', 'gray.400');
+  const headerBgGradient = useColorModeValue(
+    'linear(to-r, purple.500, pink.400, blue.400)',
+    'linear(to-r, purple.600, pink.500, blue.500)'
+  );
+  const buttonGradient = useColorModeValue(
+    'linear(to-r, purple.400, pink.400, blue.400)',
+    'linear(to-r, purple.500, pink.500, blue.500)'
+  );
+  const buttonHoverGradient = useColorModeValue(
+    'linear(to-r, purple.500, pink.500, blue.500)',
+    'linear(to-r, purple.600, pink.600, blue.600)'
+  );
+  const pageBg = useColorModeValue('gray.50', 'gray.900');
+  const inputBg = useColorModeValue('purple.50', 'gray.700');
 
   const fetchData = useCallback(async () => {
     try {
@@ -206,31 +246,33 @@ const Databases = () => {
   };
 
   const copyConnectionString = (dbName = 'postgres', user = 'cloud_admin', port = 55433) => {
-    let connectionString = getConnectionString(dbName, user, port);
-    
+    const connectionString = `postgresql://${user}:cloud_admin@localhost:${port}/${dbName}`;
     navigator.clipboard.writeText(connectionString);
     toast({
       title: 'Connection string copied',
-      description: `Connection string for ${dbName} copied to clipboard`,
+      description: 'The connection string has been copied to clipboard',
       status: 'success',
       duration: 3000,
     });
   };
-  
+
   const getStatusBadge = (status) => {
-    const colorScheme = status === 'Active' ? 'green' : status === 'Pending' ? 'yellow' : 'gray';
-    return (
-      <Badge 
-        colorScheme={colorScheme} 
-        variant="subtle" 
-        px={2} 
-        py={1} 
-        borderRadius="full" 
-        fontSize="xs"
-      >
-        {status}
-      </Badge>
-    );
+    if (!status) return <Badge colorScheme="gray">Unknown</Badge>;
+
+    switch(status.toLowerCase()) {
+      case 'online':
+      case 'active':
+      case 'running':
+        return <Badge colorScheme="green">Online</Badge>;
+      case 'offline':
+      case 'inactive':
+        return <Badge colorScheme="red">Offline</Badge>;
+      case 'pending':
+      case 'creating':
+        return <Badge colorScheme="yellow">Pending</Badge>;
+      default:
+        return <Badge colorScheme="gray">{status}</Badge>;
+    }
   };
 
   const openDeleteModal = (database) => {
@@ -239,482 +281,381 @@ const Databases = () => {
   };
 
   const handleRefresh = async () => {
-    setIsLoading(true);
-    try {
-      // First refresh the database list via the API
-      await neonApi.refreshDatabases();
-      
-      // Then fetch the updated list with neonApi.getDatabases
-      const refreshedDatabases = await neonApi.getDatabases();
-      setDatabasesData(refreshedDatabases);
-      
-      toast({
-        title: 'Databases Refreshed',
-        description: 'Database list has been refreshed successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true
-      });
-    } catch (error) {
-      console.error('Error refreshing databases:', error);
-      toast({
-        title: 'Refresh Failed',
-        description: error.message || 'Failed to refresh database list',
-        status: 'error',
-        duration: 3000,
-        isClosable: true
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await fetchData();
+    toast({
+      title: 'Data refreshed',
+      status: 'success',
+      duration: 2000,
+    });
   };
 
+  const filteredDatabases = databasesData.filter(db => 
+    db.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <Box maxW="1200px" mx="auto">
-      <Flex justifyContent="space-between" alignItems="center" mb={8}>
-        <HStack spacing={3}>
-          <HiDatabase size={28} color="#66add9" />
-          <Heading size="lg" fontWeight="600">Databases</Heading>
-        </HStack>
-        <HStack spacing={3}>
-          <Button
-            size="md"
-            variant="outline"
-            leftIcon={<HiRefresh />}
-            onClick={handleRefresh}
-            isLoading={isLoading}
-            borderRadius="md"
-            _hover={{ bg: hoverBg }}
-          >
-            Refresh
-          </Button>
-          <Button
-            size="md"
-            colorScheme="blue"
-            leftIcon={<HiPlus />}
-            onClick={onCreateOpen}
-            borderRadius="md"
-            bgGradient="linear(to-r, blue.400, teal.400)"
-            color="white"
-            _hover={{
-              bgGradient: "linear(to-r, blue.500, teal.500)",
-            }}
-          >
-            Create Database
-          </Button>
-        </HStack>
-      </Flex>
+    <Box bg={pageBg} minH="100vh" px={5} py={5}>
+      {/* Header Section */}
+      <MotionBox
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        mb={6}
+      >
+        <Box 
+          bgGradient={headerBgGradient}
+          borderRadius="lg"
+          p={6}
+          color="white"
+          boxShadow="md"
+          mb={6}
+        >
+          <Flex justify="space-between" align="center">
+            <Box>
+              <Heading size="lg" mb={2}>Database Management</Heading>
+              <Text fontSize="md">Create, manage and monitor your databases</Text>
+            </Box>
+            <HStack>
+              <Button
+                leftIcon={<HiRefresh />}
+                onClick={handleRefresh}
+                variant="solid"
+                bg="whiteAlpha.300"
+                _hover={{ bg: "whiteAlpha.400" }}
+                isLoading={isLoading}
+              >
+                Refresh
+              </Button>
+              <Button
+                leftIcon={<HiPlus />}
+                onClick={onCreateOpen}
+                bgGradient="linear(to-r, whiteAlpha.300, whiteAlpha.200)"
+                _hover={{ bgGradient: "linear(to-r, whiteAlpha.400, whiteAlpha.300)" }}
+                boxShadow="sm"
+              >
+                New Database
+              </Button>
+            </HStack>
+          </Flex>
+        </Box>
+      </MotionBox>
 
-      {/* Status indicators in a nice card */}
-      <Card bg={cardBg} shadow="sm" mb={6} borderRadius="lg" borderColor={borderColor} borderWidth="1px">
-        <CardBody py={3} px={4}>
-          <DatabaseStatus />
-        </CardBody>
-      </Card>
+      {/* Search and Stats */}
+      <MotionBox
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Flex 
+          justify="space-between" 
+          align="center" 
+          mb={6}
+          direction={{ base: 'column', md: 'row' }}
+          gap={{ base: 4, md: 0 }}
+        >
+          <InputGroup maxW={{ base: '100%', md: '320px' }}>
+            <InputLeftElement pointerEvents="none">
+              <HiSearch color="gray.300" />
+            </InputLeftElement>
+            <Input
+              bg={inputBg}
+              placeholder="Search databases..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              borderRadius="md"
+            />
+          </InputGroup>
+          
+          <HStack spacing={4}>
+            <Card bg={cardBg} p={2} boxShadow="sm" minW="150px">
+              <CardBody p={3}>
+                <Stat>
+                  <StatLabel color={subtleTextColor}>Total Databases</StatLabel>
+                  <Flex align="center" mt={1}>
+                    <HiDatabase size={20} color="purple" />
+                    <Heading size="md" ml={2}>
+                      {isLoading ? <Spinner size="sm" /> : databasesData.length}
+                    </Heading>
+                  </Flex>
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card bg={cardBg} p={2} boxShadow="sm" minW="150px">
+              <CardBody p={3}>
+                <Stat>
+                  <StatLabel color={subtleTextColor}>Active Tenants</StatLabel>
+                  <Flex align="center" mt={1}>
+                    <HiServer size={20} color="blue" />
+                    <Heading size="md" ml={2}>
+                      {isLoading ? <Spinner size="sm" /> : tenantsData.length}
+                    </Heading>
+                  </Flex>
+                </Stat>
+              </CardBody>
+            </Card>
+          </HStack>
+        </Flex>
+      </MotionBox>
 
+      {/* Error alert */}
       {error && (
-        <Alert status="warning" mb={6} borderRadius="md">
+        <Alert status="error" mb={6} borderRadius="md">
           <AlertIcon />
-          <Box>
-            <AlertTitle fontWeight="600">Connection Issue</AlertTitle>
-            <AlertDescription fontSize="sm">{error}</AlertDescription>
-          </Box>
+          <AlertTitle mr={2}>Connection Error:</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      <Tabs 
-        variant="soft-rounded" 
-        colorScheme="blue" 
-        mb={6} 
-        isLazy 
-        borderRadius="lg"
+      {/* Database Table */}
+      <MotionBox
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <TabList mb={4} gap={2}>
-          <Tab 
-            fontWeight="medium" 
-            _selected={{ color: 'white', bg: 'blue.500' }} 
-            py={3} 
-            px={6}
-            fontSize="sm"
-            leftIcon={<HiDatabase />}
-          >
-            Databases
-          </Tab>
-          <Tab 
-            fontWeight="medium" 
-            _selected={{ color: 'white', bg: 'blue.500' }} 
-            py={3} 
-            px={6}
-            fontSize="sm"
-            leftIcon={<HiClock />}
-          >
-            Timelines
-          </Tab>
-          <Tab 
-            fontWeight="medium" 
-            _selected={{ color: 'white', bg: 'blue.500' }} 
-            py={3} 
-            px={6}
-            fontSize="sm"
-            leftIcon={<HiServer />}
-          >
-            Tenants
-          </Tab>
-        </TabList>
-
-        <TabPanels>
-          {/* Databases Tab */}
-          <TabPanel px={0} py={2}>
-            <Card 
-              bg={cardBg} 
-              shadow="sm" 
-              borderRadius="lg" 
-              overflow="hidden"
-              borderColor={borderColor}
-              borderWidth="1px"
-            >
+        <Card bg={cardBg} boxShadow="sm" mb={6} overflow="hidden">
+          <CardHeader bg={tableHeaderBg} py={4}>
+            <Heading size="md">Your Databases</Heading>
+          </CardHeader>
+          <CardBody p={0}>
+            {isLoading ? (
+              <Stack spacing={0}>
+                {[...Array(3)].map((_, i) => (
+                  <Box key={i} p={4} borderBottomWidth={i < 2 ? 1 : 0} borderColor={borderColor}>
+                    <Skeleton height="20px" mb={2} />
+                    <Skeleton height="15px" width="60%" />
+                  </Box>
+                ))}
+              </Stack>
+            ) : databasesData.length === 0 ? (
+              <Flex direction="column" align="center" justify="center" py={10}>
+                <HiDatabase size={40} opacity={0.3} />
+                <Text mt={4} color={textColor}>No databases found</Text>
+                <Button 
+                  leftIcon={<HiPlus />} 
+                  onClick={onCreateOpen} 
+                  size="sm" 
+                  mt={4}
+                  bgGradient={buttonGradient}
+                  _hover={{ bgGradient: buttonHoverGradient }}
+                  color="white"
+                >
+                  Create your first database
+                </Button>
+              </Flex>
+            ) : (
               <TableContainer>
                 <Table variant="simple">
                   <Thead bg={tableHeaderBg}>
                     <Tr>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Database Name</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Owner</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Size</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Source</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Connection</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Actions</Th>
+                      <Th>Name</Th>
+                      <Th>Status</Th>
+                      <Th>Created</Th>
+                      <Th>Size</Th>
+                      <Th>Actions</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {isLoading ? (
-                      <Tr>
-                        <Td colSpan={6}>
-                          <VStack spacing={2} align="stretch" py={2}>
-                            <Skeleton height="40px" borderRadius="md" />
-                            <Skeleton height="40px" borderRadius="md" />
-                            <Skeleton height="40px" borderRadius="md" />
-                          </VStack>
-                        </Td>
-                      </Tr>
-                    ) : databasesData.length === 0 ? (
-                      <Tr>
-                        <Td colSpan={6}>
-                          <Box textAlign="center" py={8}>
-                            <HiDatabase size={40} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
-                            <Text color="gray.500">No databases found</Text>
-                            <Button 
-                              mt={4} 
-                              size="sm" 
-                              leftIcon={<HiPlus />} 
-                              onClick={onCreateOpen}
-                              colorScheme="blue"
-                              variant="outline"
-                            >
-                              Create your first database
-                            </Button>
-                          </Box>
-                        </Td>
-                      </Tr>
-                    ) : (
-                      databasesData.map((database) => (
-                        <Tr 
-                          key={`${database.source || 'unknown'}-${database.name}`}
-                          _hover={{ bg: hoverBg }}
-                          transition="background 0.2s"
-                        >
-                          <Td fontWeight="500">{database.name}</Td>
-                          <Td fontSize="sm">{database.owner}</Td>
-                          <Td fontSize="sm">{database.size}</Td>
-                          <Td>
-                            <Badge 
-                              colorScheme={database.source === 'neon' ? 'teal' : 'blue'}
-                              variant="subtle"
-                              px={2} 
-                              py={1} 
-                              borderRadius="full"
-                              fontSize="xs"
-                            >
-                              {database.source === 'neon' ? 'Apployd DB' : 'Local'}
-                            </Badge>
-                          </Td>
-                          <Td>
-                            <Tooltip label="Copy connection string" placement="top">
+                    {filteredDatabases.map((db) => (
+                      <Tr 
+                        key={db.id || db.name} 
+                        _hover={{ bg: hoverBg }}
+                        transition="background 0.2s"
+                      >
+                        <Td fontWeight="medium">{db.name}</Td>
+                        <Td>{getStatusBadge(db.status || 'Active')}</Td>
+                        <Td>{db.created ? new Date(db.created).toLocaleString() : 'Unknown'}</Td>
+                        <Td>{db.size || 'N/A'}</Td>
+                        <Td>
+                          <HStack spacing={2}>
+                            <Tooltip label="Copy Connection String" hasArrow>
                               <IconButton
+                                icon={<HiClipboardCopy />}
                                 size="sm"
+                                aria-label="Copy connection string"
+                                onClick={() => copyConnectionString(db.name)}
                                 variant="ghost"
                                 colorScheme="blue"
-                                icon={<HiExternalLink />}
-                                onClick={() => copyConnectionString(
-                                  database.name, 
-                                  database.source === 'neon' ? 'cloud_admin' : database.owner,
-                                  database.source === 'neon' ? 55433 : 5432
-                                )}
-                                aria-label="Copy connection string"
-                                borderRadius="md"
                               />
                             </Tooltip>
-                          </Td>
-                          <Td>
-                            <Tooltip label="Delete database" placement="top">
+                            <Tooltip label="Delete Database" hasArrow>
                               <IconButton
+                                icon={<HiTrash />}
                                 size="sm"
+                                aria-label="Delete database"
+                                onClick={() => openDeleteModal(db)}
                                 variant="ghost"
                                 colorScheme="red"
-                                icon={<HiTrash />}
-                                onClick={() => openDeleteModal(database)}
-                                aria-label="Delete database"
-                                borderRadius="md"
                               />
                             </Tooltip>
-                          </Td>
-                        </Tr>
-                      ))
-                    )}
+                          </HStack>
+                        </Td>
+                      </Tr>
+                    ))}
                   </Tbody>
                 </Table>
               </TableContainer>
-            </Card>
-          </TabPanel>
+            )}
+          </CardBody>
+        </Card>
+      </MotionBox>
 
-          {/* Timelines Tab */}
-          <TabPanel px={0} py={2}>
-            <Card 
-              bg={cardBg} 
-              shadow="sm" 
-              borderRadius="lg" 
-              overflow="hidden"
-              borderColor={borderColor}
-              borderWidth="1px"
-            >
+      {/* Advanced Management Section */}
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <Tabs variant="enclosed" colorScheme="purple" bg={cardBg} borderRadius="md" boxShadow="sm">
+          <TabList>
+            <Tab>Tenants</Tab>
+            <Tab>Timelines</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
               <TableContainer>
-                <Table variant="simple">
+                <Table variant="simple" size="sm">
                   <Thead bg={tableHeaderBg}>
                     <Tr>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Timeline ID</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Status</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Tenant</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Connection</Th>
+                      <Th>Tenant ID</Th>
+                      <Th>Status</Th>
+                      <Th>Location</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
                     {isLoading ? (
-                      <Tr>
-                        <Td colSpan={4}>
-                          <VStack spacing={2} align="stretch" py={2}>
-                            <Skeleton height="40px" borderRadius="md" />
-                            <Skeleton height="40px" borderRadius="md" />
-                          </VStack>
-                        </Td>
-                      </Tr>
-                    ) : timelinesData.length === 0 ? (
-                      <Tr>
-                        <Td colSpan={4}>
-                          <Box textAlign="center" py={8}>
-                            <HiClock size={40} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
-                            <Text color="gray.500">No timelines found</Text>
-                          </Box>
-                        </Td>
-                      </Tr>
-                    ) : (
-                      timelinesData.map((timeline) => (
-                        <Tr 
-                          key={timeline.timeline_id}
-                          _hover={{ bg: hoverBg }}
-                          transition="background 0.2s"
-                        >
-                          <Td fontFamily="mono" fontSize="sm">{timeline.timeline_id}</Td>
-                          <Td>{getStatusBadge(timeline.state || 'Unknown')}</Td>
-                          <Td fontFamily="mono" fontSize="sm">{timeline.tenantId}</Td>
-                          <Td>
-                            <Tooltip label="Copy connection string" placement="top">
-                              <IconButton
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="blue"
-                                icon={<HiExternalLink />}
-                                onClick={() => copyConnectionString('postgres')}
-                                aria-label="Copy connection string"
-                                borderRadius="md"
-                              />
-                            </Tooltip>
-                          </Td>
+                      [...Array(3)].map((_, i) => (
+                        <Tr key={i}>
+                          <Td><Skeleton height="10px" width="150px" /></Td>
+                          <Td><Skeleton height="10px" width="80px" /></Td>
+                          <Td><Skeleton height="10px" width="120px" /></Td>
                         </Tr>
                       ))
-                    )}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            </Card>
-          </TabPanel>
-
-          {/* Tenants Tab */}
-          <TabPanel px={0} py={2}>
-            <Card 
-              bg={cardBg} 
-              shadow="sm" 
-              borderRadius="lg" 
-              overflow="hidden"
-              borderColor={borderColor}
-              borderWidth="1px"
-            >
-              <TableContainer>
-                <Table variant="simple">
-                  <Thead bg={tableHeaderBg}>
-                    <Tr>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Tenant ID</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Status</Th>
-                      <Th py={4} fontSize="xs" textTransform="uppercase" color="gray.600">Physical Size</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {isLoading ? (
-                      <Tr>
-                        <Td colSpan={3}>
-                          <VStack spacing={2} align="stretch" py={2}>
-                            <Skeleton height="40px" borderRadius="md" />
-                            <Skeleton height="40px" borderRadius="md" />
-                          </VStack>
-                        </Td>
-                      </Tr>
                     ) : tenantsData.length === 0 ? (
                       <Tr>
-                        <Td colSpan={3}>
-                          <Box textAlign="center" py={8}>
-                            <HiServer size={40} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
-                            <Text color="gray.500">No tenants found</Text>
-                          </Box>
+                        <Td colSpan={3} textAlign="center" py={4}>
+                          <Text color={subtleTextColor}>No tenant data available</Text>
                         </Td>
                       </Tr>
                     ) : (
                       tenantsData.map((tenant) => (
-                        <Tr 
-                          key={tenant.id}
-                          _hover={{ bg: hoverBg }}
-                          transition="background 0.2s"
-                        >
-                          <Td fontFamily="mono" fontSize="sm">{tenant.id}</Td>
-                          <Td>{getStatusBadge(tenant.state?.slug || 'Unknown')}</Td>
-                          <Td>{tenant.current_physical_size || 'Unknown'}</Td>
+                        <Tr key={tenant.id} _hover={{ bg: hoverBg }}>
+                          <Td fontFamily="mono" fontSize="xs">{tenant.id}</Td>
+                          <Td>{getStatusBadge(tenant.status || 'Active')}</Td>
+                          <Td>{tenant.location || 'Local'}</Td>
                         </Tr>
                       ))
                     )}
                   </Tbody>
                 </Table>
               </TableContainer>
-            </Card>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            </TabPanel>
+            <TabPanel>
+              <TableContainer>
+                <Table variant="simple" size="sm">
+                  <Thead bg={tableHeaderBg}>
+                    <Tr>
+                      <Th>Timeline ID</Th>
+                      <Th>Tenant ID</Th>
+                      <Th>Status</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {isLoading ? (
+                      [...Array(3)].map((_, i) => (
+                        <Tr key={i}>
+                          <Td><Skeleton height="10px" width="150px" /></Td>
+                          <Td><Skeleton height="10px" width="150px" /></Td>
+                          <Td><Skeleton height="10px" width="80px" /></Td>
+                        </Tr>
+                      ))
+                    ) : timelinesData.length === 0 ? (
+                      <Tr>
+                        <Td colSpan={3} textAlign="center" py={4}>
+                          <Text color={subtleTextColor}>No timeline data available</Text>
+                        </Td>
+                      </Tr>
+                    ) : (
+                      timelinesData.map((timeline) => (
+                        <Tr key={timeline.id} _hover={{ bg: hoverBg }}>
+                          <Td fontFamily="mono" fontSize="xs">{timeline.id}</Td>
+                          <Td fontFamily="mono" fontSize="xs">{timeline.tenantId}</Td>
+                          <Td>{getStatusBadge(timeline.status || 'Active')}</Td>
+                        </Tr>
+                      ))
+                    )}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </MotionBox>
 
       {/* Create Database Modal */}
-      <Modal 
-        isOpen={isCreateOpen} 
-        onClose={onCreateClose}
-        isCentered
-      >
-        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(5px)" />
-        <ModalContent borderRadius="lg" shadow="lg">
-          <ModalHeader 
-            borderBottomWidth="1px" 
-            borderColor={borderColor}
-            py={4}
-            fontSize="lg"
-          >
-            Create New Database
-          </ModalHeader>
+      <Modal isOpen={isCreateOpen} onClose={onCreateClose}>
+        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+        <ModalContent bg={cardBg}>
+          <ModalHeader>Create New Database</ModalHeader>
           <ModalCloseButton />
-          <ModalBody py={6}>
-            <FormControl isRequired>
-              <FormLabel fontWeight="medium">Database Name</FormLabel>
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>Database Name</FormLabel>
               <Input 
                 placeholder="Enter database name" 
                 value={newDbName}
                 onChange={(e) => setNewDbName(e.target.value)}
-                borderRadius="md"
-                size="md"
+                bg={inputBg}
                 autoFocus
               />
             </FormControl>
           </ModalBody>
-          <ModalFooter 
-            borderTopWidth="1px" 
-            borderColor={borderColor}
-            py={4}
-          >
+
+          <ModalFooter>
             <Button 
-              variant="ghost" 
-              mr={3} 
-              onClick={onCreateClose}
-              borderRadius="md"
-            >
-              Cancel
-            </Button>
-            <Button 
-              colorScheme="blue"
-              onClick={handleCreateDatabase}
+              leftIcon={<HiPlus />}
+              onClick={handleCreateDatabase} 
               isLoading={isCreating}
-              borderRadius="md"
-              bgGradient="linear(to-r, blue.400, teal.400)"
-              _hover={{
-                bgGradient: "linear(to-r, blue.500, teal.500)",
-              }}
+              bgGradient={buttonGradient}
+              _hover={{ bgGradient: buttonHoverGradient }}
+              color="white"
+              mr={3}
             >
               Create
             </Button>
+            <Button onClick={onCreateClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       {/* Delete Database Modal */}
-      <Modal 
-        isOpen={isDeleteOpen} 
-        onClose={onDeleteClose}
-        isCentered
-      >
-        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(5px)" />
-        <ModalContent borderRadius="lg" shadow="lg">
-          <ModalHeader 
-            borderBottomWidth="1px" 
-            borderColor={borderColor}
-            py={4}
-            color="red.500"
-            fontSize="lg"
-          >
-            Delete Database
-          </ModalHeader>
+      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
+        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+        <ModalContent bg={cardBg}>
+          <ModalHeader>Delete Database</ModalHeader>
           <ModalCloseButton />
-          <ModalBody py={6}>
-            <VStack spacing={4} align="start">
-              <Text>
-                Are you sure you want to delete the database <strong>{selectedDb?.name}</strong>?
-              </Text>
-              <Alert status="warning" borderRadius="md" size="sm">
-                <AlertIcon />
-                <Text fontSize="sm">This action cannot be undone and all data will be permanently lost.</Text>
-              </Alert>
-            </VStack>
+          <ModalBody pb={6}>
+            <Alert status="warning" borderRadius="md">
+              <AlertIcon />
+              <Box>
+                <AlertTitle>Warning!</AlertTitle>
+                <AlertDescription>
+                  Are you sure you want to delete database <b>{selectedDb?.name}</b>? This action cannot be undone.
+                </AlertDescription>
+              </Box>
+            </Alert>
           </ModalBody>
-          <ModalFooter 
-            borderTopWidth="1px" 
-            borderColor={borderColor}
-            py={4}
-          >
+
+          <ModalFooter>
             <Button 
-              variant="ghost" 
-              mr={3} 
-              onClick={onDeleteClose}
-              borderRadius="md"
-            >
-              Cancel
-            </Button>
-            <Button 
-              colorScheme="red" 
-              onClick={handleDeleteDatabase}
+              leftIcon={<HiTrash />}
+              onClick={handleDeleteDatabase} 
               isLoading={isDeleting}
-              borderRadius="md"
+              colorScheme="red"
+              mr={3}
             >
               Delete
             </Button>
+            <Button onClick={onDeleteClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

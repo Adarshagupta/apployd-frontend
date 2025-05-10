@@ -7,7 +7,8 @@ import {
   TbSettings,
   TbFlask,
   TbUser,
-  TbSql
+  TbSql,
+  TbHelp
 } from "react-icons/tb";
 import { useAuth } from './context/AuthContext';
 
@@ -16,13 +17,16 @@ import Dashboard from "./pages/Dashboard";
 import Databases from "./pages/Databases";
 import Monitoring from "./pages/Monitoring";
 import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 import Experiments from "./pages/Experiments";
+import CreateDatabase from "./pages/CreateDatabase";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Profile from "./pages/auth/Profile";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
 import QueryPage from "./pages/QueryPage";
+import SqlEditor from "./pages/SqlEditor";
 import Home from "./pages/Home";
 
 // Components
@@ -64,6 +68,11 @@ const navItems = [
     name: "Settings",
     path: "/settings",
     icon: TbSettings,
+  },
+  {
+    name: "Support",
+    path: "/support",
+    icon: TbHelp,
   },
   {
     name: "Profile",
@@ -113,16 +122,12 @@ export const routes = [
               { path: "/dashboard", element: <Dashboard /> },
               { path: "/databases", element: <Databases /> },
               { path: "/query", element: <QueryPage /> },
+              { path: "/sql-editor", element: <SqlEditor /> },
               { path: "/monitoring", element: <Monitoring /> },
+              { path: "/support", element: <Support /> },
+              { path: "/settings", element: <Settings /> },
+              { path: "/create-database", element: <CreateDatabase /> },
               { path: "/profile", element: <Profile /> },
-              
-              // Admin-only routes
-              {
-                element: <ProtectedRoute requiredRoles={['admin']} />,
-                children: [
-                  { path: "/settings", element: <Settings /> }
-                ]
-              },
               
               // Developer-only routes
               {

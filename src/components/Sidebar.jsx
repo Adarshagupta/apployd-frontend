@@ -128,7 +128,7 @@ const Sidebar = () => {
           >
             A
           </Box>
-          <Heading size="md" bgGradient={logoGradient} bgClip="text">Apployd DB</Heading>
+          <Image src="./public/images/logo.png" alt="Apployd DB" h="24px" />
         </HStack>
         
         <Text fontSize="xs" color="gray.500" fontWeight="medium" mb={4} textTransform="uppercase" letterSpacing="wider">
@@ -138,7 +138,7 @@ const Sidebar = () => {
         <VStack align="stretch" spacing={1} mb={8}>
           <NavItem icon={HiHome} to="/dashboard">Dashboard</NavItem>
           <NavItem icon={HiDatabase} to="/databases">Databases</NavItem>
-          <NavItem icon={HiCode} to="/sql-editor">SQL Editor</NavItem>
+          <NavItem icon={HiCode} to="/query">SQL Editor</NavItem>
           <NavItem icon={HiChartBar} to="/monitoring">Monitoring</NavItem>
         </VStack>
         
