@@ -245,8 +245,8 @@ const Monitoring = () => {
             <Alert status="error" borderRadius="md" size="sm">
               <AlertIcon />
               <Text fontSize="sm">
-                {status.error || 'Connection failed'}
-              </Text>
+              {status.error || 'Connection failed'}
+            </Text>
             </Alert>
           )}
           
@@ -285,11 +285,11 @@ const Monitoring = () => {
                   <Text fontSize="xs" color={subtleTextColor} mb={1}>Latest metrics</Text>
                   <Code p={2} fontSize="xs" width="100%" bg={codeBg} borderRadius="md">
                     <Box overflowX="auto" maxHeight="70px">
-                      {typeof status.metrics === 'object' 
+                    {typeof status.metrics === 'object' 
                         ? JSON.stringify(status.metrics, null, 2).substring(0, 150) + '...'
                         : String(status.metrics).substring(0, 150) + '...'}
-                    </Box>
-                  </Code>
+                  </Box>
+                </Code>
                 </Box>
               )}
             </VStack>
@@ -316,7 +316,7 @@ const Monitoring = () => {
           boxShadow="md"
         >
           <Flex justify="space-between" align="center">
-            <Box>
+    <Box>
               <Heading size="lg" mb={2}>System Monitoring</Heading>
               <Text fontSize="md">Monitor health and status of all Neon components</Text>
               {lastUpdated && (
@@ -326,20 +326,20 @@ const Monitoring = () => {
                 </HStack>
               )}
             </Box>
-            <Button
-              leftIcon={<TbRefresh />}
-              onClick={fetchData}
-              isLoading={isLoading}
+        <Button
+          leftIcon={<TbRefresh />}
+          onClick={fetchData}
+          isLoading={isLoading}
               variant="solid"
               bg="whiteAlpha.300"
               _hover={{ bg: "whiteAlpha.400" }}
-            >
-              Refresh
-            </Button>
+        >
+          Refresh
+        </Button>
           </Flex>
         </Box>
       </MotionBox>
-
+      
       {/* Error alert */}
       {error && (
         <Alert status="error" mb={5} borderRadius="md">
@@ -347,7 +347,7 @@ const Monitoring = () => {
           <Text>{error}</Text>
         </Alert>
       )}
-
+      
       {/* System Health Overview */}
       <MotionBox
         initial={{ opacity: 0, y: 10 }}
@@ -359,8 +359,8 @@ const Monitoring = () => {
           {renderServiceCard('Pageserver', systemStatus.pageserver, TbDatabase)}
           {renderServiceCard('Compute', systemStatus.compute, TbCpu)}
           {renderServiceCard('Safekeeper', systemStatus.safekeeper, TbServer)}
-          {renderServiceCard('Storage Broker', systemStatus.broker, TbCloudUpload)}
-        </SimpleGrid>
+        {renderServiceCard('Storage Broker', systemStatus.broker, TbCloudUpload)}
+      </SimpleGrid>
       </MotionBox>
 
       {/* Detailed Metrics */}
@@ -370,13 +370,13 @@ const Monitoring = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Tabs variant="enclosed" colorScheme="purple" bg={cardBg} borderRadius="lg" boxShadow="sm">
-          <TabList>
+        <TabList>
             <Tab><HStack><TbDatabase size="16px" /><Text>Pageserver</Text></HStack></Tab>
             <Tab><HStack><TbServer size="16px" /><Text>Safekeeper</Text></HStack></Tab>
             <Tab><HStack><TbActivity size="16px" /><Text>Activity</Text></HStack></Tab>
-          </TabList>
-          
-          <TabPanels>
+        </TabList>
+        
+        <TabPanels>
             {/* Pageserver Metrics */}
             <TabPanel>
               {isLoading ? (
@@ -427,9 +427,9 @@ const Monitoring = () => {
                     <Card bg={cardBg} boxShadow="sm">
                       <CardHeader pb={0}>
                         <Heading size="xs">Tenant Stats</Heading>
-                      </CardHeader>
-                      <CardBody>
-                        <Stat>
+              </CardHeader>
+              <CardBody>
+                      <Stat>
                           <StatLabel>Active Tenants</StatLabel>
                           <StatNumber>
                             {pageserverMetrics.active_tenants || 
@@ -442,7 +442,7 @@ const Monitoring = () => {
                               <Text>Healthy</Text>
                             </HStack>
                           </StatHelpText>
-                        </Stat>
+                      </Stat>
                       </CardBody>
                     </Card>
                     
@@ -451,7 +451,7 @@ const Monitoring = () => {
                         <Heading size="xs">Storage Usage</Heading>
                       </CardHeader>
                       <CardBody>
-                        <Stat>
+                      <Stat>
                           <StatLabel>Disk Space</StatLabel>
                           <StatNumber>
                             {pageserverMetrics.disk_usage_bytes 
@@ -467,7 +467,7 @@ const Monitoring = () => {
                               mt={1}
                             />
                           </StatHelpText>
-                        </Stat>
+                      </Stat>
                       </CardBody>
                     </Card>
                     
@@ -476,7 +476,7 @@ const Monitoring = () => {
                         <Heading size="xs">Performance</Heading>
                       </CardHeader>
                       <CardBody>
-                        <Stat>
+                      <Stat>
                           <StatLabel>Request Latency</StatLabel>
                           <HStack align="baseline">
                             <StatNumber>
@@ -491,14 +491,14 @@ const Monitoring = () => {
                               <Text>-12% from previous</Text>
                             </HStack>
                           </StatHelpText>
-                        </Stat>
+                      </Stat>
                       </CardBody>
                     </Card>
                   </SimpleGrid>
                 </Box>
               )}
-            </TabPanel>
-            
+          </TabPanel>
+          
             {/* Safekeeper Metrics */}
             <TabPanel>
               {isLoading ? (
@@ -549,10 +549,10 @@ const Monitoring = () => {
                     <Card bg={cardBg} boxShadow="sm">
                       <CardHeader pb={0}>
                         <Heading size="xs">WAL Stats</Heading>
-                      </CardHeader>
-                      <CardBody>
-                        <Stat>
-                          <StatLabel>WAL Segments</StatLabel>
+              </CardHeader>
+              <CardBody>
+                      <Stat>
+                        <StatLabel>WAL Segments</StatLabel>
                           <StatNumber>
                             {safekeeperMetrics.wal_segments || 
                              Math.floor(Math.random() * 50)}
@@ -563,7 +563,7 @@ const Monitoring = () => {
                               <Text>Active</Text>
                             </HStack>
                           </StatHelpText>
-                        </Stat>
+                      </Stat>
                       </CardBody>
                     </Card>
                     
@@ -618,8 +618,8 @@ const Monitoring = () => {
                   </SimpleGrid>
                 </Box>
               )}
-            </TabPanel>
-            
+          </TabPanel>
+          
             {/* Activity Log */}
             <TabPanel>
               <TableContainer>
@@ -686,12 +686,12 @@ const Monitoring = () => {
                   Load More
                 </Button>
               </Flex>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
       </MotionBox>
     </Box>
   );
 };
 
-export default Monitoring;
+export default Monitoring; 

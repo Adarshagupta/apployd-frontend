@@ -495,8 +495,8 @@ const QueryPage = () => {
               <FiDatabase size={20} />
               <Heading size="md" ml={2}>{database?.name || 'SQL Editor'}</Heading>
               {isLoading && <Spinner size="sm" ml={2} />}
-            </Flex>
-            
+      </Flex>
+
             <HStack>
               <Button 
                 size="sm"
@@ -508,9 +508,9 @@ const QueryPage = () => {
               </Button>
             </HStack>
           </HStack>
-        </CardHeader>
+            </CardHeader>
         
-        <CardBody>
+            <CardBody>
           <Tabs isFitted variant="enclosed">
             <TabList>
               <Tab><HStack><FiPlay size={16} /><Text>Query Editor</Text></HStack></Tab>
@@ -543,7 +543,7 @@ const QueryPage = () => {
                         Execute
                       </Button>
                       
-                      <Button
+                    <Button 
                         leftIcon={<FiSave />}
                         onClick={saveQuery}
                       >
@@ -558,7 +558,7 @@ const QueryPage = () => {
                       <MenuList>
                         {savedQueries.map(query => (
                           <MenuItem key={query.id} onClick={() => loadQuery(query)}>
-                            {query.name}
+                      {query.name}
                           </MenuItem>
                         ))}
                       </MenuList>
@@ -630,7 +630,7 @@ const QueryPage = () => {
                     Create Table
                   </Button>
                   
-                  <Button
+                  <Button 
                     leftIcon={<FiRefreshCw />}
                     onClick={fetchTables}
                     isLoading={isLoadingTables}
@@ -700,9 +700,9 @@ const QueryPage = () => {
               </TabPanel>
             </TabPanels>
           </Tabs>
-        </CardBody>
-      </Card>
-      
+            </CardBody>
+          </Card>
+
       {/* Create Table Modal */}
       <Modal isOpen={isCreateTableOpen} onClose={onCreateTableClose} size="xl">
         <ModalOverlay />
@@ -799,25 +799,25 @@ const QueryPage = () => {
               <TabPanels>
                 <TabPanel px={0}>
                   {tableData?.rows && tableData.rows.length > 0 ? (
-                    <Box overflowX="auto">
-                      <Table variant="simple" size="sm">
-                        <Thead>
-                          <Tr>
+                <Box overflowX="auto">
+                    <Table variant="simple" size="sm">
+                      <Thead>
+                        <Tr>
                             {Object.keys(tableData.rows[0]).map(column => (
                               <Th key={column}>{column}</Th>
-                            ))}
-                          </Tr>
-                        </Thead>
-                        <Tbody>
+                          ))}
+                        </Tr>
+                      </Thead>
+                      <Tbody>
                           {tableData.rows.map((row, rowIndex) => (
                             <Tr key={rowIndex}>
                               {Object.values(row).map((cell, cellIndex) => (
                                 <Td key={cellIndex}>{String(cell !== null ? cell : 'NULL')}</Td>
-                              ))}
-                            </Tr>
-                          ))}
-                        </Tbody>
-                      </Table>
+                            ))}
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
                     </Box>
                   ) : (
                     <Alert status="info">
@@ -854,8 +854,8 @@ const QueryPage = () => {
                       <Button onClick={loadTableStructureAsSQL} leftIcon={<FiEdit />} size="sm">
                         Load as SQL
                       </Button>
-                    </Box>
-                  ) : (
+                </Box>
+              ) : (
                     <Alert status="info">
                       <AlertIcon />
                       No structure information available for this table

@@ -245,17 +245,32 @@ const Databases = () => {
     }
   };
 
-  const copyConnectionString = (dbName = 'postgres', user = 'cloud_admin', port = 55433) => {
-    const connectionString = `postgresql://${user}:cloud_admin@localhost:${port}/${dbName}`;
-    navigator.clipboard.writeText(connectionString);
-    toast({
-      title: 'Connection string copied',
-      description: 'The connection string has been copied to clipboard',
-      status: 'success',
-      duration: 3000,
-    });
+  const copyConnectionString = (db) => {
+    // Always construct a proper connection string manually
+    if (db) {
+      const username = db.connection?.user || 'prazwolgupta';
+      const password = db.connection?.password || '';
+      const host = db.connection?.host || 'localhost';
+      const port = db.connection?.port || 5432;
+      const dbName = typeof db === 'string' ? db : (db?.name || 'postgres');
+      
+      // Construct the proper connection string
+      const connectionString = password 
+        ? `postgresql://${username}:${password}@${host}:${port}/${dbName}`
+        : `postgresql://${username}@${host}:${port}/${dbName}`;
+      
+      console.log('Generated connection string:', connectionString);
+      navigator.clipboard.writeText(connectionString);
+      
+      toast({
+        title: 'Connection string copied',
+        description: 'The connection string has been copied to clipboard',
+        status: 'success',
+        duration: 3000,
+      });
+    }
   };
-
+  
   const getStatusBadge = (status) => {
     if (!status) return <Badge colorScheme="gray">Unknown</Badge>;
 
@@ -282,9 +297,9 @@ const Databases = () => {
 
   const handleRefresh = async () => {
     await fetchData();
-    toast({
+      toast({
       title: 'Data refreshed',
-      status: 'success',
+        status: 'success',
       duration: 2000,
     });
   };
@@ -316,27 +331,27 @@ const Databases = () => {
               <Text fontSize="md">Create, manage and monitor your databases</Text>
             </Box>
             <HStack>
-              <Button
-                leftIcon={<HiRefresh />}
-                onClick={handleRefresh}
+          <Button
+            leftIcon={<HiRefresh />}
+            onClick={handleRefresh}
                 variant="solid"
                 bg="whiteAlpha.300"
                 _hover={{ bg: "whiteAlpha.400" }}
-                isLoading={isLoading}
-              >
-                Refresh
-              </Button>
-              <Button
-                leftIcon={<HiPlus />}
-                onClick={onCreateOpen}
+            isLoading={isLoading}
+          >
+            Refresh
+          </Button>
+          <Button
+            leftIcon={<HiPlus />}
+            onClick={onCreateOpen}
                 bgGradient="linear(to-r, whiteAlpha.300, whiteAlpha.200)"
                 _hover={{ bgGradient: "linear(to-r, whiteAlpha.400, whiteAlpha.300)" }}
                 boxShadow="sm"
               >
                 New Database
-              </Button>
-            </HStack>
-          </Flex>
+          </Button>
+        </HStack>
+      </Flex>
         </Box>
       </MotionBox>
 
@@ -391,8 +406,8 @@ const Databases = () => {
                     </Heading>
                   </Flex>
                 </Stat>
-              </CardBody>
-            </Card>
+        </CardBody>
+      </Card>
           </HStack>
         </Flex>
       </MotionBox>
@@ -451,6 +466,7 @@ const Databases = () => {
                       <Th>Status</Th>
                       <Th>Created</Th>
                       <Th>Size</Th>
+                      <Th>Connection</Th>
                       <Th>Actions</Th>
                     </Tr>
                   </Thead>
@@ -458,13 +474,49 @@ const Databases = () => {
                     {filteredDatabases.map((db) => (
                       <Tr 
                         key={db.id || db.name} 
-                        _hover={{ bg: hoverBg }}
-                        transition="background 0.2s"
-                      >
+                          _hover={{ bg: hoverBg }}
+                          transition="background 0.2s"
+                        >
                         <Td fontWeight="medium">{db.name}</Td>
                         <Td>{getStatusBadge(db.status || 'Active')}</Td>
                         <Td>{db.created ? new Date(db.created).toLocaleString() : 'Unknown'}</Td>
                         <Td>{db.size || 'N/A'}</Td>
+                        <Td>
+                          {db.connection && db.connection.connectionString ? (
+                            <Tooltip label={db.connection.connectionString} hasArrow>
+                              <Box>
+                                <Text isTruncated maxW="200px" fontFamily="mono" fontSize="xs">
+                                  {db.connection.connectionString}
+                                </Text>
+                              </Box>
+                            </Tooltip>
+                          ) : 'N/A'}
+                        </Td>
+                        <Td>
+                          {(() => {
+                            // Generate a correct connection string regardless of what the backend sends
+                            const username = db.connection?.user || 'prazwolgupta';
+                            const host = db.connection?.host || 'localhost';
+                            const port = db.connection?.port || 5432;
+                            const dbName = db.name;
+                            const hasPassword = !!db.connection?.password;
+                            
+                            // Construct a proper connection string
+                            const displayString = hasPassword 
+                              ? `postgresql://${username}:********@${host}:${port}/${dbName}`
+                              : `postgresql://${username}@${host}:${port}/${dbName}`;
+                              
+                            return (
+                              <Tooltip label={displayString} hasArrow>
+                                <Box>
+                                  <Text isTruncated maxW="200px" fontFamily="mono" fontSize="xs">
+                                    {displayString}
+                                  </Text>
+                                </Box>
+                              </Tooltip>
+                            );
+                          })()}
+                        </Td>
                         <Td>
                           <HStack spacing={2}>
                             <Tooltip label="Copy Connection String" hasArrow>
@@ -472,7 +524,7 @@ const Databases = () => {
                                 icon={<HiClipboardCopy />}
                                 size="sm"
                                 aria-label="Copy connection string"
-                                onClick={() => copyConnectionString(db.name)}
+                                onClick={() => copyConnectionString(db)}
                                 variant="ghost"
                                 colorScheme="blue"
                               />
@@ -488,15 +540,15 @@ const Databases = () => {
                               />
                             </Tooltip>
                           </HStack>
-                        </Td>
-                      </Tr>
+                          </Td>
+                        </Tr>
                     ))}
                   </Tbody>
                 </Table>
               </TableContainer>
             )}
           </CardBody>
-        </Card>
+            </Card>
       </MotionBox>
 
       {/* Advanced Management Section */}
@@ -528,7 +580,7 @@ const Databases = () => {
                           <Td><Skeleton height="10px" width="150px" /></Td>
                           <Td><Skeleton height="10px" width="80px" /></Td>
                           <Td><Skeleton height="10px" width="120px" /></Td>
-                        </Tr>
+                      </Tr>
                       ))
                     ) : tenantsData.length === 0 ? (
                       <Tr>
@@ -548,7 +600,7 @@ const Databases = () => {
                   </Tbody>
                 </Table>
               </TableContainer>
-            </TabPanel>
+          </TabPanel>
             <TabPanel>
               <TableContainer>
                 <Table variant="simple" size="sm">
@@ -566,7 +618,7 @@ const Databases = () => {
                           <Td><Skeleton height="10px" width="150px" /></Td>
                           <Td><Skeleton height="10px" width="150px" /></Td>
                           <Td><Skeleton height="10px" width="80px" /></Td>
-                        </Tr>
+                      </Tr>
                       ))
                     ) : timelinesData.length === 0 ? (
                       <Tr>
@@ -586,9 +638,9 @@ const Databases = () => {
                   </Tbody>
                 </Table>
               </TableContainer>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
       </MotionBox>
 
       {/* Create Database Modal */}
@@ -613,7 +665,7 @@ const Databases = () => {
           <ModalFooter>
             <Button 
               leftIcon={<HiPlus />}
-              onClick={handleCreateDatabase} 
+              onClick={handleCreateDatabase}
               isLoading={isCreating}
               bgGradient={buttonGradient}
               _hover={{ bgGradient: buttonHoverGradient }}
@@ -635,20 +687,20 @@ const Databases = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Alert status="warning" borderRadius="md">
-              <AlertIcon />
+                <AlertIcon />
               <Box>
                 <AlertTitle>Warning!</AlertTitle>
                 <AlertDescription>
                   Are you sure you want to delete database <b>{selectedDb?.name}</b>? This action cannot be undone.
                 </AlertDescription>
               </Box>
-            </Alert>
+              </Alert>
           </ModalBody>
 
           <ModalFooter>
             <Button 
               leftIcon={<HiTrash />}
-              onClick={handleDeleteDatabase} 
+              onClick={handleDeleteDatabase}
               isLoading={isDeleting}
               colorScheme="red"
               mr={3}
@@ -663,4 +715,4 @@ const Databases = () => {
   );
 };
 
-export default Databases; 
+export default Databases;  

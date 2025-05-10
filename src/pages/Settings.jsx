@@ -205,7 +205,7 @@ const Settings = () => {
           boxShadow="md"
         >
           <Flex justify="space-between" align="center">
-            <Box>
+    <Box>
               <Heading size="lg" mb={2}>Settings</Heading>
               <Text fontSize="md">Configure your Neon environment and preferences</Text>
             </Box>
@@ -244,9 +244,9 @@ const Settings = () => {
             <Tab><HStack><Icon as={TbServer} boxSize="16px" /><Text>Connection</Text></HStack></Tab>
             <Tab><HStack><Icon as={TbUser} boxSize="16px" /><Text>Account</Text></HStack></Tab>
             <Tab><HStack><Icon as={TbSettings} boxSize="16px" /><Text>Advanced</Text></HStack></Tab>
-          </TabList>
-          
-          <TabPanels>
+        </TabList>
+        
+        <TabPanels>
             {/* Connection Settings Panel */}
             <TabPanel>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
@@ -330,8 +330,8 @@ const Settings = () => {
                       <Icon as={TbServer} color="teal.500" boxSize="20px" />
                       <Heading size="md">Safekeeper Connection</Heading>
                     </HStack>
-                  </CardHeader>
-                  <CardBody>
+              </CardHeader>
+              <CardBody>
                     <VStack spacing={4} align="stretch">
                       <FormControl>
                         <FormLabel>Safekeeper Host</FormLabel>
@@ -350,7 +350,7 @@ const Settings = () => {
                           value={tenantConfig?.safekeeper_port || ''}
                           onChange={(e) => handleTenantConfigChange('safekeeper_port', e.target.value)}
                         />
-                      </FormControl>
+                    </FormControl>
                       <Box pt={2}>
                         <Badge colorScheme="green">Connected</Badge>
                         <Text mt={1} fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
@@ -406,18 +406,18 @@ const Settings = () => {
                     </HStack>
                   </CardHeader>
                   <CardBody>
-                    <VStack spacing={4} align="stretch">
-                      <FormControl>
+                      <VStack spacing={4} align="stretch">
+                        <FormControl>
                         <FormLabel>Email Address</FormLabel>
-                        <Input 
+                          <Input 
                           bg={useColorModeValue('white', 'gray.700')}
                           name="email" 
                           value={tenantConfig?.email || ''}
                           onChange={(e) => handleTenantConfigChange('email', e.target.value)}
                         />
-                      </FormControl>
-                      
-                      <FormControl>
+                        </FormControl>
+                        
+                          <FormControl>
                         <FormLabel>Session Timeout (minutes)</FormLabel>
                         <Slider 
                           aria-label="session-timeout" 
@@ -472,9 +472,9 @@ const Settings = () => {
                           value={tenantConfig?.last_password_change || ''}
                           isReadOnly
                         />
-                      </FormControl>
-                      
-                      <FormControl>
+                          </FormControl>
+                          
+                          <FormControl>
                         <FormLabel>Two-Factor Authentication</FormLabel>
                         <HStack>
                           <Badge colorScheme="red">Not Configured</Badge>
@@ -482,9 +482,9 @@ const Settings = () => {
                             Setup 2FA
                           </Button>
                         </HStack>
-                      </FormControl>
-                      
-                      <Divider my={2} />
+                          </FormControl>
+                        
+                        <Divider my={2} />
                       
                       <Text fontWeight="medium">Active Sessions</Text>
                       <HStack justify="space-between" bg={useColorModeValue('gray.50', 'gray.700')} p={3} borderRadius="md">
@@ -545,33 +545,33 @@ const Settings = () => {
                           onChange={(e) => handleTenantConfigChange('maintenance_notifications', e.target.checked)}
                         />
                       </FormControl>
-                      
-                      <FormControl display="flex" alignItems="center">
+                        
+                        <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="product-notifications" mb="0" fontSize="sm">
                           Product Updates
-                        </FormLabel>
-                        <Switch 
+                          </FormLabel>
+                          <Switch 
                           colorScheme="purple" 
                           id="product-notifications"
                           name="productNotifications"
                           isChecked={tenantConfig?.product_notifications || false}
                           onChange={(e) => handleTenantConfigChange('product_notifications', e.target.checked)}
-                        />
-                      </FormControl>
-                      
-                      <FormControl display="flex" alignItems="center">
+                          />
+                        </FormControl>
+                        
+                        <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="usage-notifications" mb="0" fontSize="sm">
                           Usage Reports
-                        </FormLabel>
-                        <Switch 
+                          </FormLabel>
+                          <Switch 
                           colorScheme="purple" 
                           id="usage-notifications"
                           name="usageNotifications"
                           isChecked={tenantConfig?.usage_notifications || true}
                           onChange={(e) => handleTenantConfigChange('usage_notifications', e.target.checked)}
-                        />
-                      </FormControl>
-                      
+                          />
+                        </FormControl>
+                        
                       <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="marketing-notifications" mb="0" fontSize="sm">
                           Marketing
@@ -585,11 +585,11 @@ const Settings = () => {
                         />
                       </FormControl>
                     </SimpleGrid>
-                  </CardBody>
-                </Card>
+              </CardBody>
+            </Card>
               </SimpleGrid>
-            </TabPanel>
-            
+          </TabPanel>
+          
             {/* Advanced Settings Panel */}
             <TabPanel>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
@@ -599,8 +599,8 @@ const Settings = () => {
                       <Icon as={TbSettings} color="purple.500" boxSize="20px" />
                       <Heading size="md">System Configuration</Heading>
                     </HStack>
-                  </CardHeader>
-                  <CardBody>
+              </CardHeader>
+              <CardBody>
                     <VStack spacing={4} align="stretch">
                       <FormControl>
                         <FormLabel>Log Level</FormLabel>
@@ -639,17 +639,17 @@ const Settings = () => {
                         />
                       </FormControl>
                     </VStack>
-                  </CardBody>
-                </Card>
-                
+              </CardBody>
+            </Card>
+            
                 <Card bg={useColorModeValue('white', 'gray.800')} boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
                   <CardHeader pb={0}>
                     <HStack>
                       <Icon as={TbAlertCircle} color="orange.500" boxSize="20px" />
                       <Heading size="md">Danger Zone</Heading>
                     </HStack>
-                  </CardHeader>
-                  <CardBody>
+              </CardHeader>
+              <CardBody>
                     <VStack spacing={4} align="stretch">
                       <Alert status="warning" borderRadius="md">
                         <AlertIcon />
@@ -662,7 +662,7 @@ const Settings = () => {
                         <Heading size="sm" mb={2} color="red.500">Reset All Data</Heading>
                         <Text mb={3} fontSize="sm">
                           This will delete all tenant data and reset the system to its initial state.
-                        </Text>
+                    </Text>
                         <Button 
                           leftIcon={<TbTrash />} 
                           colorScheme="red" 
@@ -671,7 +671,7 @@ const Settings = () => {
                         >
                           Reset All Data
                         </Button>
-                      </Box>
+                    </Box>
                       
                       <Box p={4} borderWidth="1px" borderColor="orange.300" borderRadius="md">
                         <Heading size="sm" mb={2} color="orange.500">Restore Factory Settings</Heading>
@@ -685,10 +685,10 @@ const Settings = () => {
                         >
                           Restore Factory Settings
                         </Button>
-                      </Box>
+                  </Box>
                     </VStack>
-                  </CardBody>
-                </Card>
+              </CardBody>
+            </Card>
                 
                 <Card bg={useColorModeValue('white', 'gray.800')} boxShadow="sm" borderWidth="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
                   <CardHeader pb={0}>
@@ -696,8 +696,8 @@ const Settings = () => {
                       <Icon as={TbDatabase} color="blue.500" boxSize="20px" />
                       <Heading size="md">Backup Configuration</Heading>
                     </HStack>
-                  </CardHeader>
-                  <CardBody>
+              </CardHeader>
+              <CardBody>
                     <VStack spacing={4} align="stretch">
                       <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="auto-backup" mb="0">
@@ -712,7 +712,7 @@ const Settings = () => {
                         />
                       </FormControl>
                       
-                      <FormControl>
+                  <FormControl>
                         <FormLabel>Backup Frequency</FormLabel>
                         <Select 
                           bg={useColorModeValue('white', 'gray.700')}
@@ -723,17 +723,17 @@ const Settings = () => {
                           <option value="daily">Daily</option>
                           <option value="weekly">Weekly</option>
                           <option value="monthly">Monthly</option>
-                        </Select>
-                      </FormControl>
-                      
-                      <FormControl>
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl>
                         <FormLabel>Retention Period (days)</FormLabel>
-                        <Input 
+                    <Input 
                           bg={useColorModeValue('white', 'gray.700')}
                           defaultValue="7"
                           isDisabled={!tenantConfig?.auto_backup}
-                        />
-                      </FormControl>
+                    />
+                  </FormControl>
                       
                       <Button 
                         mt={2} 
@@ -767,8 +767,8 @@ const Settings = () => {
                           isChecked={tenantConfig?.metrics_collection || true}
                           onChange={(e) => handleTenantConfigChange('metrics_collection', e.target.checked)}
                         />
-                      </FormControl>
-                      
+                </FormControl>
+                
                       <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="experimental-features" mb="0">
                           Experimental Features
@@ -780,8 +780,8 @@ const Settings = () => {
                           isChecked={tenantConfig?.experimental_features || false}
                           onChange={(e) => handleTenantConfigChange('experimental_features', e.target.checked)}
                         />
-                      </FormControl>
-                      
+                </FormControl>
+                
                       <Alert status="info" borderRadius="md">
                         <AlertIcon />
                         <Text fontSize="sm">
@@ -793,12 +793,12 @@ const Settings = () => {
                         These settings are intended for advanced users and developers. Changing them may affect system stability.
                       </Text>
                     </VStack>
-                  </CardBody>
-                </Card>
+              </CardBody>
+            </Card>
               </SimpleGrid>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
       </MotionBox>
       
       {/* Footer Actions */}

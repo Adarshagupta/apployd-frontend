@@ -174,14 +174,45 @@ export const getDatabases = async () => {
   }
 };
 
-// Helper to generate a connection string for Apployd DB
-export const getConnectionString = (dbName = 'postgres', user = 'cloud_admin', port = 55433) => {
-  if (port === 55433) {
-    // Apployd DB database
-    return `postgresql://${user}:cloud_admin@localhost:${port}/${dbName}`;
+
+// Helper to generate a connection string for databases
+export const getConnectionString = (dbName = 'postgres', user = null, password = null, host = 'localhost', port = null) => {
+  // Default values based on database type
+  let defaultUser, defaultPassword, defaultPort;
+  
+  if (!port) {
+    // Determine defaults based on likely database type
+    if (dbName.startsWith('neon_') || host.includes('neon')) {
+      defaultPort = 55433;
+      defaultUser = 'cloud_admin';
+      defaultPassword = 'cloud_admin';
+    } else {
+      defaultPort = 5432;
+      defaultUser = 'prazwolgupta'; // Local user
+      defaultPassword = '';
+    }
   } else {
-    // Local database
-    return `postgresql://${user}@localhost:${port}/${dbName}`;
+    // Use port to determine likely defaults
+    if (port === 55433) {
+      defaultUser = 'cloud_admin';
+      defaultPassword = 'cloud_admin';
+    } else {
+      defaultUser = 'prazwolgupta'; // Local user
+      defaultPassword = '';
+    }
+    defaultPort = port;
+  }
+  
+  // Use provided values or defaults
+  const finalUser = user || defaultUser;
+  const finalPassword = password || defaultPassword;
+  const finalPort = port || defaultPort;
+  
+  // Build connection string with password if it exists
+  if (finalPassword) {
+    return `postgresql://${finalUser}:${finalPassword}@${host}:${finalPort}/${dbName}`;
+  } else {
+    return `postgresql://${finalUser}@${host}:${finalPort}/${dbName}`;
   }
 };
 
