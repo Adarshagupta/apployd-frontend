@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Center, Spinner, Text, VStack } from '@chakra-ui/react';
 
 const ProtectedRoute = ({ requiredRoles = [] }) => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, emailVerified } = useAuth();
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -20,6 +20,11 @@ const ProtectedRoute = ({ requiredRoles = [] }) => {
   // If user is not logged in, redirect to login page
   if (!currentUser) {
     return <Navigate to="/login" replace />;
+  }
+  
+  // Check if email is verified, redirect to verification page if not
+  if (!emailVerified) {
+    return <Navigate to="/verify-email" replace />;
   }
   
   // If specific roles are required, check if user has at least one of them

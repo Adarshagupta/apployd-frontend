@@ -113,23 +113,15 @@ const Sidebar = () => {
       }}
     >
       <Box px={6} py={6}>
-        <HStack spacing={2} mb={8}>
-          <Box 
-            w="32px" 
-            h="32px" 
-            borderRadius="md" 
-            bgGradient={logoGradient}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color="white"
-            fontWeight="bold"
-            fontSize="lg"
-          >
-            A
-          </Box>
-          <Image src="./public/images/logo.png" alt="Apployd DB" h="24px" />
-        </HStack>
+        <Box mb={8} textAlign="center">
+          <Image 
+            src="/images/symbo+text-logo.png" 
+            alt="Neon Logo" 
+            maxW="180px" 
+            width="100%"
+            mx="auto"
+          />
+        </Box>
         
         <Text fontSize="xs" color="gray.500" fontWeight="medium" mb={4} textTransform="uppercase" letterSpacing="wider">
           Core

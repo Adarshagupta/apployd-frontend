@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import theme from './theme';
-import App, { routes } from './App';
+import { routes } from './App';
 import './index.css';
 
 // Create router with imported routes and future flags for React Router v7 compatibility

@@ -24,11 +24,15 @@ import {
   Icon,
   VStack,
   Progress,
-  ScaleFade
+  ScaleFade,
+  Alert,
+  AlertIcon,
+  Spinner
 } from '@chakra-ui/react';
 import { useAuth } from '../../context/AuthContext';
 import { FiEye, FiEyeOff, FiCheck, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { validateEmail } from '../../utils/validation';
 
 const MotionBox = motion(Box);
 
@@ -48,8 +52,11 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formStep, setFormStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [emailValidating, setEmailValidating] = useState(false);
   
-  const { register } = useAuth();
+  const { register, sendVerificationEmail } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   
@@ -91,20 +98,78 @@ const Register = () => {
   }, []);
   
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
     setFormData({
       ...formData,
-      [name]: name === 'agreeToTerms' ? checked : value
+      [name]: newValue
     });
     
-    // Clear error when user starts typing
+    // Clear error for this field
     if (errors[name]) {
       setErrors({
         ...errors,
-        [name]: undefined
+        [name]: ''
       });
     }
   };
+  
+  const handleEmailChange = async (e) => {
+    const { value } = e.target;
+    
+    setFormData({
+      ...formData,
+      email: value
+    });
+    
+    // Clear error for this field
+    if (errors.email) {
+      setErrors({
+        ...errors,
+        email: ''
+      });
+    }
+    
+    // Only validate if there's a value and user has stopped typing (debounce)
+    if (value) {
+      setEmailValidating(true);
+      
+      // Simple validation immediately
+      if (!/\S+@\S+\.\S+/.test(value)) {
+        setErrors({
+          ...errors,
+          email: 'Please enter a valid email address'
+        });
+        setEmailValidating(false);
+        return;
+      }
+      
+      // Use timeout to debounce the comprehensive validation
+      const debounceTimer = setTimeout(async () => {
+        try {
+          const validationResult = await validateEmail(value);
+          
+          if (!validationResult.isValid) {
+            setErrors({
+              ...errors,
+              email: validationResult.reason
+            });
+          }
+        } catch (error) {
+          console.error('Email validation error:', error);
+        } finally {
+          setEmailValidating(false);
+        }
+      }, 600);
+      
+      // Clear timeout on next change
+      return () => clearTimeout(debounceTimer);
+    }
+  };
+  
+  const toggleShowPassword = () => setShowPassword(!showPassword);
+  const toggleShowConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
   
   const validateStep = (step) => {
     const newErrors = {};
@@ -120,8 +185,8 @@ const Register = () => {
       
       if (!formData.email) {
         newErrors.email = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Email is invalid';
+      } else if (errors.email) {
+        newErrors.email = errors.email;
       }
     } else if (step === 1) {
       if (!formData.companyName) {
@@ -160,11 +225,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateStep(formStep)) return;
+    if (!validateStep(formStep) || emailValidating) return;
     
     setIsSubmitting(true);
     
     try {
+      setLoading(true);
+      setError('');
+      
       const userData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -184,15 +252,19 @@ const Register = () => {
           isClosable: true,
         });
       } else {
+        // Send verification email automatically
+        await sendVerificationEmail();
+
         toast({
           title: 'Registration Successful',
-          description: 'Welcome to Neon! Redirecting to dashboard...',
+          description: 'Please check your email to verify your account before accessing the dashboard.',
           status: 'success',
-          duration: 3000,
+          duration: 5000,
           isClosable: true,
         });
         
-        // Navigate is handled by AuthContext
+        // Navigate to verification page instead of dashboard
+        navigate('/verify-email');
       }
     } catch (error) {
       let errorMessage = error.message || 'An unexpected error occurred';
@@ -214,6 +286,7 @@ const Register = () => {
       });
     } finally {
       setIsSubmitting(false);
+      setLoading(false);
     }
   };
   
@@ -401,16 +474,23 @@ const Register = () => {
                   
                   <FormControl isInvalid={errors.email}>
                     <FormLabel>Email address</FormLabel>
-                    <Input
-                      bg={inputBg}
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="john.doe@example.com"
-                      size="lg"
-                      borderRadius="md"
-                    />
+                    <InputGroup>
+                      <Input
+                        bg={inputBg}
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleEmailChange}
+                        placeholder="john.doe@example.com"
+                        size="lg"
+                        borderRadius="md"
+                      />
+                      {emailValidating && (
+                        <InputRightElement>
+                          <Spinner size="sm" color="blue.500" />
+                        </InputRightElement>
+                      )}
+                    </InputGroup>
                     <FormErrorMessage>{errors.email}</FormErrorMessage>
                   </FormControl>
                   
@@ -463,7 +543,7 @@ const Register = () => {
                         borderRadius="md"
                       />
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                        <Button h="1.75rem" size="sm" onClick={toggleShowPassword}>
                           <Icon as={showPassword ? FiEyeOff : FiEye} />
                         </Button>
                       </InputRightElement>
@@ -520,7 +600,7 @@ const Register = () => {
                         borderRadius="md"
                       />
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                        <Button h="1.75rem" size="sm" onClick={toggleShowConfirmPassword}>
                           <Icon as={showConfirmPassword ? FiEyeOff : FiEye} />
                         </Button>
                       </InputRightElement>
@@ -557,7 +637,7 @@ const Register = () => {
                       type="submit"
                       size="lg"
                       colorScheme="purple"
-                      isLoading={isSubmitting}
+                      isLoading={loading}
                       loadingText="Creating Account"
                       flex="2"
                       bgGradient={buttonGradient}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, Routes, Route } from 'react-router-dom';
 import { 
   TbLayoutDashboard, 
   TbDatabase, 
@@ -28,6 +28,9 @@ import Unauthorized from "./pages/Unauthorized";
 import QueryPage from "./pages/QueryPage";
 import SqlEditor from "./pages/SqlEditor";
 import Home from "./pages/Home";
+import VerifyEmail from './pages/auth/VerifyEmail';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 
 // Components
 import Layout from "./components/Layout";
@@ -85,7 +88,41 @@ const navItems = [
 function AppRoutes() {
   return (
     <AuthProvider>
-      <Outlet />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        
+        {/* Home page */}
+        <Route path="/" element={<RootRedirect />} />
+        
+        {/* Protected routes - wrapped in Layout component */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout navItems={navItems.filter(item => !item.hideFromNav)} />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/databases" element={<Databases />} />
+            <Route path="/query" element={<QueryPage />} />
+            <Route path="/sql-editor" element={<SqlEditor />} />
+            <Route path="/monitoring" element={<Monitoring />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/create-database" element={<CreateDatabase />} />
+            
+            {/* Admin/developer only routes */}
+            <Route element={<ProtectedRoute requiredRoles={['admin', 'developer']} />}>
+              <Route path="/experiments" element={<Experiments />} />
+            </Route>
+          </Route>
+        </Route>
+        
+        {/* Not found route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </AuthProvider>
   );
 }

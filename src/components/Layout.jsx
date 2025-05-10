@@ -253,25 +253,14 @@ const MobileNav = ({ isOpen, onToggle, navItems, colorMode, toggleColorMode, cur
               justifyContent="space-between"
               mb={8}
             >
-              <HStack spacing={2}>
-                <Box 
-                  w="32px" 
-                  h="32px" 
-                  borderRadius="md" 
-                  bgGradient={logoGradient}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  color="white"
-                  fontWeight="bold"
-                  fontSize="lg"
-                >
-                  N
-                </Box>
-                <Text fontSize="xl" fontWeight="bold" bgGradient={logoGradient} bgClip="text">
-                  Neon UI
-                </Text>
-              </HStack>
+              <Box>
+                <Image 
+                  src="/images/symbo+text-logo.png" 
+                  alt="Neon Logo" 
+                  maxW="180px" 
+                  width="100%"
+                />
+              </Box>
               <CloseButton onClick={onToggle} />
             </Flex>
             

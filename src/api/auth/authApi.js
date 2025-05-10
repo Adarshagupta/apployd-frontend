@@ -10,6 +10,15 @@ const authAxios = axios.create({
   }
 });
 
+// Function to get CSRF token from cookies
+const getCsrfToken = () => {
+  const cookieValue = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('XSRF-TOKEN='))
+    ?.split('=')[1];
+  return cookieValue || '';
+};
+
 // Add a request interceptor to include the auth token in all requests
 authAxios.interceptors.request.use(
   (config) => {
@@ -17,6 +26,15 @@ authAxios.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    // Add CSRF token to headers for non-GET requests
+    if (config.method !== 'get') {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        config.headers['X-CSRF-TOKEN'] = csrfToken;
+      }
+    }
+    
     return config;
   },
   (error) => {
@@ -27,11 +45,45 @@ authAxios.interceptors.request.use(
 // Add a response interceptor to handle token expiration
 authAxios.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear invalid token on 401 responses
-      localStorage.removeItem('neon_auth_token');
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If the error is 401 and we haven't tried refreshing the token yet
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem('neon_refresh_token');
+        
+        if (refreshToken) {
+          // Create a new axios instance for refresh request to avoid interceptors loop
+          const refreshResponse = await axios.post('/api/auth/refresh-token', {
+            refreshToken
+          });
+          
+          const { token, refreshToken: newRefreshToken } = refreshResponse.data;
+          
+          // Store the new tokens
+          localStorage.setItem('neon_auth_token', token);
+          localStorage.setItem('neon_refresh_token', newRefreshToken);
+          
+          // Update the original request with the new token
+          authAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+          
+          // Retry the original request
+          return authAxios(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+        // Token refresh failed, clear tokens and redirect to login
+        localStorage.removeItem('neon_auth_token');
+        localStorage.removeItem('neon_refresh_token');
+        window.location.href = '/login';
+      }
     }
+    
     return Promise.reject(error);
   }
 );
@@ -71,7 +123,8 @@ export const authApi = {
               lastName: 'User',
               email: email,
               companyName: 'Neon',
-              roles: ['user']
+              roles: ['user'],
+              emailVerified: false
             },
             token: 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15)
           };
@@ -121,7 +174,8 @@ export const authApi = {
               lastName: userData.lastName,
               email: userData.email,
               companyName: userData.companyName,
-              roles: ['user']
+              roles: ['user'],
+              emailVerified: false
             },
             token: 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15)
           };
@@ -131,6 +185,46 @@ export const authApi = {
         }
       }
       
+      throw handleApiError(error);
+    }
+  },
+
+  // Send verification email
+  sendVerificationEmail: async (email) => {
+    try {
+      const response = await authAxios.post('/send-verification-email', { email });
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  // Verify email address with token
+  verifyEmail: async (token) => {
+    try {
+      const response = await authAxios.post('/verify-email', { token });
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+  
+  // Check email verification status
+  checkEmailVerificationStatus: async (email) => {
+    try {
+      const response = await authAxios.get(`/email-verification-status?email=${encodeURIComponent(email)}`);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+  
+  // Resend verification email
+  resendVerificationEmail: async (email) => {
+    try {
+      const response = await authAxios.post('/resend-verification-email', { email });
+      return response.data;
+    } catch (error) {
       throw handleApiError(error);
     }
   },
@@ -241,5 +335,30 @@ const handleApiError = (error) => {
     // Something happened in setting up the request that triggered an Error
     console.error('Request setup error:', error.message);
     return new Error('Error setting up request. Please try again later');
+  }
+};
+
+// Token validation function to check if token is expired
+export const isTokenExpired = (token) => {
+  if (!token) return true;
+  
+  try {
+    // Extract the payload from the JWT
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(window.atob(base64));
+    
+    // Check if token has expiration claim
+    if (!payload.exp) return false;
+    
+    // Convert exp to milliseconds and compare with current time
+    // Add a 5 second buffer to account for clock differences
+    const expirationTime = payload.exp * 1000;
+    const currentTime = Date.now();
+    
+    return currentTime >= expirationTime - 5000; // 5 seconds buffer
+  } catch (error) {
+    console.error('Error parsing token:', error);
+    return true; // Assume expired if there's an error
   }
 }; 
