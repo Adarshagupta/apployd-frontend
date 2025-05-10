@@ -1,0 +1,18 @@
+PostgreSQL API server running at http://localhost:3081
+Ready to execute SQL commands!
+Executing SQL: CREATE DATABASE h
+Connection info: {
+  host: 'localhost',
+  port: 55433,
+  user: 'cloud_admin',
+  password: 'cloud_admin',
+  database: 'postgres'
+}
+Executing SQL: CREATE DATABASE dsds
+Connection info: {
+  host: 'localhost',
+  port: 55433,
+  user: 'cloud_admin',
+  password: 'cloud_admin',
+  database: 'postgres'
+}

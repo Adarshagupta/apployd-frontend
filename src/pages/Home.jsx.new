@@ -1,0 +1,103 @@
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  useColorModeValue,
+  Icon,
+} from '@chakra-ui/react';
+import { FaAws, FaGoogle, FaMicrosoft, FaApple, FaGithub } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+
+// Trusted logos component
+const TrustedLogos = () => (
+  <HStack spacing={10} justify="center" flexWrap="wrap">
+    <Icon as={FaAws} boxSize={8} color="gray.400" />
+    <Icon as={FaGoogle} boxSize={8} color="gray.400" />
+    <Icon as={FaMicrosoft} boxSize={8} color="gray.400" />
+    <Icon as={FaApple} boxSize={8} color="gray.400" />
+    <Icon as={FaGithub} boxSize={8} color="gray.400" />
+  </HStack>
+);
+
+// Simple illustration component
+const Illustration = () => (
+  <Box w={{ base: '100%', md: '420px' }} h={{ base: '220px', md: '340px' }} display="flex" alignItems="center" justifyContent="center">
+    <svg width="100%" height="100%" viewBox="0 0 420 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="30" y="40" width="180" height="120" rx="18" fill="#E9D8FD" />
+      <rect x="110" y="120" width="180" height="120" rx="18" fill="#B2F5EA" />
+      <circle cx="300" cy="90" r="45" fill="#FEB2B2" />
+      <rect x="220" y="200" width="140" height="80" rx="18" fill="#FEEBC8" />
+      <circle cx="110" cy="220" r="30" fill="#90CDF4" />
+      <rect x="270" y="50" width="60" height="40" rx="8" fill="#C6F6D5" />
+    </svg>
+  </Box>
+);
+
+// Main Home component
+const Home = () => {
+  const { isAuthenticated } = useAuth();
+  const bg = useColorModeValue('white', 'gray.900');
+  const textColor = useColorModeValue('gray.900', 'whiteAlpha.900');
+  const subText = useColorModeValue('gray.600', 'gray.300');
+  const buttonBg = useColorModeValue('gray.900', 'whiteAlpha.900');
+  const buttonColor = useColorModeValue('white', 'gray.900');
+
+  return (
+    <Box minH="100vh" bg={bg}>
+      <Container maxW="7xl" py={{ base: 10, md: 20 }}>
+        <Flex direction={{ base: 'column', md: 'row' }} align="center" justify="space-between" gap={10}>
+          {/* Left: Headline, subheadline, CTA */}
+          <VStack align="flex-start" spacing={8} maxW="lg" flex={1}>
+            <Text fontSize="sm" fontWeight="bold" letterSpacing="widest" color="purple.400" textTransform="uppercase">
+              Apployd DB for Modern Data
+            </Text>
+            <Heading as="h1" size="2xl" fontWeight="extrabold" letterSpacing="-0.04em" color={textColor} lineHeight="1.1">
+              Build beautiful, scalable serverless databases
+            </Heading>
+            <Text fontSize="lg" color={subText}>
+              Apployd DB lets you branch, scale, and analyze Postgres instantly. Designed for the next generation of cloud apps.
+            </Text>
+            <Button
+              as={RouterLink}
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              size="lg"
+              px={8}
+              py={6}
+              bg={buttonBg}
+              color={buttonColor}
+              rounded="full"
+              fontWeight="bold"
+              boxShadow="lg"
+              _hover={{ opacity: 0.85 }}
+              transition="all 0.2s"
+            >
+              {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
+            </Button>
+          </VStack>
+
+          {/* Right: Illustration */}
+          <Box flex={1} display="flex" alignItems="center" justifyContent="center" w="full">
+            <Illustration />
+          </Box>
+        </Flex>
+
+        {/* Trusted by logos */}
+        <VStack spacing={6} mt={{ base: 16, md: 24 }}>
+          <Text fontSize="sm" color={subText} letterSpacing="wide" fontWeight="medium" textAlign="center">
+            Trusted by teams at
+          </Text>
+          <TrustedLogos />
+        </VStack>
+      </Container>
+    </Box>
+  );
+};
+
+export default Home;

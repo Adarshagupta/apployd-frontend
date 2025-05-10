@@ -1,0 +1,2069 @@
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Grid,
+  GridItem,
+  SimpleGrid,
+  Avatar,
+  useColorModeValue,
+  Icon,
+  Divider,
+  Badge,
+  Image,
+} from '@chakra-ui/react';
+import { FaAws, FaGoogle, FaMicrosoft, FaApple, FaGithub, FaDatabase, FaLock, FaRocket, FaCode, FaChartLine, FaServer } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+
+// Trusted logos component
+const TrustedLogos = () => (
+  <HStack spacing={{ base: 8, md: 16 }} justify="center" flexWrap="wrap">
+    <Box opacity={0.7} transition="opacity 0.2s" _hover={{ opacity: 1 }}>
+      <Icon as={FaAws} boxSize={{ base: 6, md: 8 }} color="gray.500" />
+    </Box>
+    <Box opacity={0.7} transition="opacity 0.2s" _hover={{ opacity: 1 }}>
+      <Icon as={FaGoogle} boxSize={{ base: 6, md: 8 }} color="gray.500" />
+    </Box>
+    <Box opacity={0.7} transition="opacity 0.2s" _hover={{ opacity: 1 }}>
+      <Icon as={FaMicrosoft} boxSize={{ base: 6, md: 8 }} color="gray.500" />
+    </Box>
+    <Box opacity={0.7} transition="opacity 0.2s" _hover={{ opacity: 1 }}>
+      <Icon as={FaApple} boxSize={{ base: 6, md: 8 }} color="gray.500" />
+    </Box>
+    <Box opacity={0.7} transition="opacity 0.2s" _hover={{ opacity: 1 }}>
+      <Icon as={FaGithub} boxSize={{ base: 6, md: 8 }} color="gray.500" />
+    </Box>
+  </HStack>
+);
+
+// Illustration component - Figma-inspired design
+const Illustration = () => (
+  <Box w={{ base: '100%', md: '480px' }} h={{ base: '300px', md: '380px' }} position="relative" mt={{ base: 8, md: 0 }}>
+    {/* Purple frame 1 */}
+    <Box position="absolute" top="10%" left="5%" width="65%" height="55%" bg="purple.100" borderRadius="xl" boxShadow="md" zIndex={1}>
+      {/* Rainbow corner */}
+      <Box position="absolute" bottom="10%" left="10%" width="30%" height="30%">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M0 100 A 100 100 0 0 1 100 0 L 100 100 Z" fill="#FEB2B2" />
+          <path d="M15 100 A 85 85 0 0 1 100 15 L 100 100 Z" fill="#FEEBC8" />
+          <path d="M30 100 A 70 70 0 0 1 100 30 L 100 100 Z" fill="#B2F5EA" />
+          <path d="M45 100 A 55 55 0 0 1 100 45 L 100 100 Z" fill="#90CDF4" />
+        </svg>
+      </Box>
+      
+      {/* Selection handles */}
+      <Box position="absolute" top="-4px" left="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" top="-4px" right="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" bottom="-4px" left="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" bottom="-4px" right="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+    </Box>
+    
+    {/* Green heart shape */}
+    <Box position="absolute" top="0" right="0" width="45%" height="50%" zIndex={2}>
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <path d="M50,30 C35,10 0,10 0,40 C0,65 25,85 50,100 C75,85 100,65 100,40 C100,10 65,10 50,30 Z" fill="#68D391" />
+        {/* Black triangle accent */}
+        <path d="M60,40 L40,70 L70,60 Z" fill="#111" />
+      </svg>
+    </Box>
+    
+    {/* Purple frame 2 (bottom) */}
+    <Box position="absolute" bottom="5%" left="20%" width="75%" height="45%" bg="purple.100" borderRadius="xl" boxShadow="md" zIndex={0}>
+      {/* Yellow circle */}
+      <Box position="absolute" top="25%" right="25%" width="25%" height="50%" borderRadius="full" bg="#F6E05E" />
+      
+      {/* Rainbow quarter circles */}
+      <Box position="absolute" bottom="10%" left="10%" width="40%" height="40%">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M0 100 A 100 100 0 0 1 100 0 L 100 100 Z" fill="#FEB2B2" />
+          <path d="M15 100 A 85 85 0 0 1 100 15 L 100 100 Z" fill="#FEEBC8" />
+          <path d="M30 100 A 70 70 0 0 1 100 30 L 100 100 Z" fill="#B2F5EA" />
+          <path d="M45 100 A 55 55 0 0 1 100 45 L 100 100 Z" fill="#90CDF4" />
+        </svg>
+      </Box>
+      
+      {/* Selection handles */}
+      <Box position="absolute" top="-4px" left="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" top="-4px" right="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" bottom="-4px" left="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+      <Box position="absolute" bottom="-4px" right="-4px" width="8px" height="8px" bg="white" borderRadius="sm" border="1px solid" borderColor="gray.400" />
+    </Box>
+  </Box>
+);
+
+// Main Home component
+const Home = () => {
+  const { isAuthenticated } = useAuth();
+  const bg = useColorModeValue('white', 'gray.900');
+  const textColor = useColorModeValue('gray.900', 'whiteAlpha.900');
+  const subText = useColorModeValue('gray.600', 'gray.300');
+  const buttonBg = useColorModeValue('black', 'white');
+  const buttonColor = useColorModeValue('white', 'black');
+
+  return (
+    <Box minH="100vh" bg={bg}>
+      {/* Navigation Header */}
+      <Box borderBottom="1px solid" borderColor={useColorModeValue('gray.100', 'gray.800')}>
+        <Container maxW="7xl">
+          <Flex py={4} align="center" justify="space-between">
+            {/* Logo */}
+            <Flex align="center">
+              <img src="/images/symbo+text-logo.png" alt="Apployd DB Logo" style={{ maxHeight: 32, marginRight: 8 }} />
+              <Text fontWeight="bold" fontSize="xl">Apployd DB</Text>
+            </Flex>
+            
+            {/* Navigation Links - Desktop */}
+            <HStack spacing={8} display={{ base: 'none', md: 'flex' }}>
+              <Box position="relative" _after={{
+                content: '""',
+                position: 'absolute',
+                bottom: '-5px',
+                left: 0,
+                right: 0,
+                height: '2px',
+                bg: 'currentColor',
+                borderRadius: 'full',
+              }}>
+                <Text fontWeight="medium">Products</Text>
+              </Box>
+              <Text fontWeight="medium">Solutions</Text>
+              <Text fontWeight="medium">Community</Text>
+              <Text fontWeight="medium">Resources</Text>
+              <Text fontWeight="medium">Pricing</Text>
+            </HStack>
+            
+            {/* Auth Buttons */}
+            <HStack spacing={4}>
+              <Text fontWeight="medium" display={{ base: 'none', md: 'block' }}>Contact sales</Text>
+              <Button variant="outline" size="sm" rounded="md" fontWeight="medium">
+                Log in
+              </Button>
+              <Button bg="black" color="white" size="sm" rounded="md" fontWeight="medium" _hover={{ bg: 'gray.800' }}>
+                Get started for free
+              </Button>
+            </HStack>
+          </Flex>
+        </Container>
+      </Box>
+      
+      <Container maxW="7xl" py={{ base: 16, md: 28 }}>
+        <Flex 
+          direction={{ base: 'column', md: 'row' }} 
+          align="center" 
+          justify="space-between" 
+          gap={{ base: 16, md: 12 }}
+          position="relative"
+        >
+          {/* Decorative elements */}
+          <Box 
+            position="absolute" 
+            top="-20%" 
+            left="-5%" 
+            width="200px" 
+            height="200px" 
+            borderRadius="full" 
+            bg="purple.50" 
+            opacity="0.6" 
+            zIndex="0"
+            display={{ base: 'none', lg: 'block' }}
+          />
+          
+          {/* Left: Headline, subheadline, CTA */}
+          <VStack 
+            align="flex-start" 
+            spacing={{ base: 8, md: 10 }} 
+            maxW={{ base: 'full', md: 'lg', lg: 'xl' }} 
+            flex={1}
+            position="relative"
+            zIndex="1"
+          >
+            <Box 
+              px={4} 
+              py={2} 
+              bg={useColorModeValue('purple.50', 'purple.900')} 
+              borderRadius="full"
+              boxShadow="sm"
+              transform="translateY(0)"
+              transition="all 0.3s ease"
+              _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+            >
+              <Text 
+                fontSize="sm" 
+                fontWeight="bold" 
+                letterSpacing="widest" 
+                color="purple.400" 
+                textTransform="uppercase"
+              >
+                Apployd DB for Web Design
+              </Text>
+            </Box>
+            
+            <Heading 
+              as="h1" 
+              fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }} 
+              fontWeight="bold" 
+              letterSpacing="-0.02em" 
+              lineHeight="1.1"
+              bgGradient="linear(to-r, purple.500, blue.500)"
+              bgClip="text"
+              position="relative"
+            >
+              Create beautiful, responsive serverless databases
+            </Heading>
+            
+            <Text 
+              fontSize={{ base: 'lg', md: 'xl' }} 
+              color={subText} 
+              maxW="xl"
+              lineHeight="tall"
+            >
+              Apployd DB is the free online platform where people design the world's best databases together. From wireframe to design to prototype to development—Apployd DB makes database design seamless.
+            </Text>
+            
+            <HStack spacing={4} pt={2}>
+              <Button
+                as={RouterLink}
+                to={isAuthenticated ? "/dashboard" : "/register"}
+                size="lg"
+                height="56px"
+                px={8}
+                fontSize="md"
+                fontWeight="bold"
+                colorScheme="purple"
+                bgGradient="linear(to-r, purple.500, blue.500)"
+                _hover={{
+                  bgGradient: 'linear(to-r, purple.600, blue.600)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg'
+                }}
+                transition="all 0.3s"
+                rounded="lg"
+              >
+                {isAuthenticated ? 'Go to Dashboard' : 'Try for free'}
+              </Button>
+              
+              <Button
+                as={RouterLink}
+                to="/documentation"
+                size="lg"
+                height="56px"
+                px={8}
+                fontSize="md"
+                fontWeight="bold"
+                variant="outline"
+                colorScheme="purple"
+                borderWidth="2px"
+                _hover={{
+                  bg: useColorModeValue('purple.50', 'purple.900'),
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'md'
+                }}
+                transition="all 0.3s"
+                rounded="lg"
+              >
+                Learn more
+              </Button>
+            </HStack>
+            
+            <HStack spacing={6} pt={4} opacity="0.8">
+              <HStack spacing={2}>
+                <Icon as={FaRocket} color="purple.500" />
+                <Text fontSize="sm" fontWeight="medium">
+                  Serverless
+                </Text>
+              </HStack>
+              
+              <HStack spacing={2}>
+                <Icon as={FaLock} color="purple.500" />
+                <Text fontSize="sm" fontWeight="medium">
+                  Secure
+                </Text>
+              </HStack>
+              
+              <HStack spacing={2}>
+                <Icon as={FaDatabase} color="purple.500" />
+                <Text fontSize="sm" fontWeight="medium">
+                  Scalable
+                </Text>
+              </HStack>
+            </HStack>
+          </VStack>
+
+          {/* Right: Illustration */}
+          <Box flex={1} display="flex" alignItems="center" justifyContent="center" w="full">
+            <Illustration />
+          </Box>
+        </Flex>
+
+        {/* Features Section */}
+        <Box 
+          as="section" 
+          py={{ base: 24, md: 36 }}
+          position="relative"
+          overflow="hidden"
+          bg={useColorModeValue('gray.50', 'gray.900')}
+        >
+          {/* Animated background gradient */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bgGradient="linear(to-br, rgba(236, 242, 255, 0.8), rgba(249, 240, 255, 0.8))"
+            display={useColorModeValue('block', 'none')}
+            zIndex="0"
+          />
+          
+          {/* Dark mode background */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bgGradient="linear(to-br, gray.900, purple.900)"
+            opacity="0.9"
+            display={useColorModeValue('none', 'block')}
+            zIndex="0"
+          />
+          
+          {/* Decorative elements */}
+          <Box
+            position="absolute"
+            top="10%"
+            right="5%"
+            width="300px"
+            height="300px"
+            borderRadius="full"
+            opacity="0.4"
+            filter="blur(40px)"
+            zIndex="0"
+            bg={useColorModeValue('blue.50', 'blue.900')}
+            borderWidth="2px"
+            borderColor={useColorModeValue('blue.100', 'blue.800')}
+            opacity="0.6"
+            zIndex="0"
+          />
+          
+          <Box
+            position="absolute"
+            bottom="15%"
+            left="-5%"
+            width="250px"
+            height="250px"
+            borderRadius="full"
+            bg="transparent"
+            borderWidth="2px"
+            borderColor={useColorModeValue('purple.100', 'purple.800')}
+            opacity="0.4"
+            zIndex="0"
+          />
+          
+          <Box
+            position="absolute"
+            top="40%"
+            left="15%"
+            width="150px"
+            height="150px"
+            borderRadius="full"
+            bg={useColorModeValue('blue.50', 'blue.900')}
+            opacity="0.3"
+            zIndex="0"
+          />
+          
+          <Container maxW="7xl" position="relative" zIndex="1">
+            {/* Section Header - Modern Asymmetrical Design */}
+            <Box 
+              maxW="3xl" 
+              mx="auto" 
+              textAlign={{ base: 'center', md: 'left' }}
+              mb={{ base: 16, md: 24 }}
+            >
+              <Flex 
+                direction={{ base: 'column', md: 'row' }}
+                align="center"
+                justify="space-between"
+              >
+                <Box maxW={{ base: 'full', md: '70%' }}>
+                  <Box 
+                    display="inline-flex" 
+                    bg={useColorModeValue('blue.50', 'blue.900')} 
+                    px={4} 
+                    py={2} 
+                    borderRadius="full"
+                    mb={4}
+                    boxShadow="sm"
+                  >
+                    <Text 
+                      fontSize="sm" 
+                      fontWeight="bold" 
+                      bgGradient="linear(to-r, blue.400, purple.500)"
+                      bgClip="text"
+                      letterSpacing="wider"
+                    >
+                      POWERFUL FEATURES
+                    </Text>
+                  </Box>
+                  
+                  <Heading 
+                    as="h2" 
+                    fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }} 
+                    fontWeight="bold" 
+                    lineHeight="1.1"
+                    bgGradient="linear(to-r, blue.500, purple.600, pink.500)"
+                    bgClip="text"
+                    letterSpacing="tight"
+                    mb={6}
+                  >
+                    Everything you need to build amazing databases
+                  </Heading>
+                  
+                  <Text 
+                    fontSize={{ base: 'lg', md: 'xl' }} 
+                    color={subText}
+                    maxW="2xl"
+                    lineHeight="tall"
+                  >
+                    Apployd DB provides all the tools and features you need to create, manage, and scale your databases with ease. Designed for developers who want power without complexity.
+                  </Text>
+                </Box>
+                
+                <Box 
+                  display={{ base: 'none', md: 'block' }}
+                  position="relative"
+                  width="180px"
+                  height="180px"
+                  mt={{ base: 8, md: 0 }}
+                >
+                  {/* Animated decorative element */}
+                  <Box
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    width="full"
+                    height="full"
+                    borderRadius="full"
+                    bgGradient="linear(to-r, blue.400, purple.500)"
+                    opacity="0.2"
+                    animation="pulse 3s infinite"
+                    sx={{
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(0.95)', opacity: 0.2 },
+                        '50%': { transform: 'scale(1.05)', opacity: 0.3 },
+                        '100%': { transform: 'scale(0.95)', opacity: 0.2 },
+                      },
+                    }}
+                  />
+                  
+                  <Box
+                    position="absolute"
+                    top="15%"
+                    left="15%"
+                    width="70%"
+                    height="70%"
+                    borderRadius="full"
+                    bgGradient="linear(to-r, blue.500, purple.600)"
+                    opacity="0.4"
+                    animation="pulse 3s infinite 0.5s"
+                    sx={{
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(0.95)', opacity: 0.4 },
+                        '50%': { transform: 'scale(1.05)', opacity: 0.5 },
+                        '100%': { transform: 'scale(0.95)', opacity: 0.4 },
+                      },
+                    }}
+                  />
+                  
+                  <Box
+                    position="absolute"
+                    top="30%"
+                    left="30%"
+                    width="40%"
+                    height="40%"
+                    borderRadius="full"
+                    bgGradient="linear(to-r, blue.600, purple.700)"
+                    opacity="0.6"
+                    animation="pulse 3s infinite 1s"
+                    sx={{
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(0.95)', opacity: 0.6 },
+                        '50%': { transform: 'scale(1.05)', opacity: 0.7 },
+                        '100%': { transform: 'scale(0.95)', opacity: 0.6 },
+                      },
+                    }}
+                  />
+                  
+                  <Flex
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    width="full"
+                    height="full"
+                    align="center"
+                    justify="center"
+                  >
+                    <Icon 
+                      as={FaDatabase} 
+                      color="white" 
+                      boxSize={10} 
+                    />
+                  </Flex>
+                </Box>
+              </Flex>
+            </Box>
+              
+              {/* Features - Modern Staggered Layout */}
+              <VStack spacing={24} w="full">
+                {/* Feature 1 - Serverless Architecture */}
+                <Flex
+                  direction={{ base: 'column', lg: 'row' }}
+                  align="center"
+                  justify="space-between"
+                  gap={{ base: 10, lg: 16 }}
+                  w="full"
+                >
+                  {/* Feature Content */}
+                  <Box maxW={{ base: 'full', lg: '50%' }} order={{ base: 2, lg: 1 }}>
+                    <VStack align="flex-start" spacing={6}>
+                      <Flex 
+                        p={4} 
+                        borderRadius="full"
+                        bg={useColorModeValue('blue.50', 'blue.900')}
+                        boxShadow="md"
+                      >
+                        <Icon as={FaRocket} boxSize={8} color="blue.500" />
+                      </Flex>
+                      
+                      <Heading
+                        as="h3"
+                        fontSize={{ base: '3xl', md: '4xl' }}
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, blue.400, purple.500)"
+                        bgClip="text"
+                        letterSpacing="tight"
+                      >
+                        Serverless Architecture
+                      </Heading>
+                      
+                      <Text fontSize="xl" color={subText} lineHeight="tall">
+                        Scale automatically with our serverless infrastructure. Pay only for what you use with no idle resources. Our intelligent scaling ensures optimal performance during peak loads.
+                      </Text>
+                      
+                      <HStack spacing={6} pt={2}>
+                        <HStack spacing={2}>
+                          <Icon as={FaRocket} color="blue.500" boxSize={4} />
+                          <Text fontWeight="medium">Auto-scaling</Text>
+                        </HStack>
+                        
+                        <HStack spacing={2}>
+                          <Icon as={FaChartLine} color="blue.500" boxSize={4} />
+                          <Text fontWeight="medium">Pay-per-use</Text>
+                        </HStack>
+                      </HStack>
+                      
+                      <Button
+                        variant="ghost"
+                        colorScheme="blue"
+                        size="lg"
+                        rightIcon={<Box as="span" ml={1}>→</Box>}
+                        _hover={{ transform: 'translateX(4px)' }}
+                        transition="all 0.3s"
+                        mt={2}
+                      >
+                        Learn more about serverless
+                      </Button>
+                    </VStack>
+                  </Box>
+                  
+                  {/* Feature Visual */}
+                  <Box 
+                    maxW={{ base: 'full', lg: '45%' }} 
+                    w="full" 
+                    h={{ base: '280px', md: '360px' }}
+                    position="relative"
+                    order={{ base: 1, lg: 2 }}
+                  >
+                    <Box
+                      position="absolute"
+                      inset="0"
+                      borderRadius="2xl"
+                      overflow="hidden"
+                      bg={useColorModeValue('blue.50', 'blue.900')}
+                      boxShadow="xl"
+                      p={6}
+                    >
+                      {/* Serverless Visualization */}
+                      <Flex direction="column" h="full" justify="center" align="center" position="relative">
+                        {/* Cloud elements */}
+                        <Box 
+                          position="absolute" 
+                          top="10%" 
+                          left="10%" 
+                          borderRadius="full" 
+                          bg="white" 
+                          opacity="0.8"
+                          boxShadow="md"
+                          w="60px" 
+                          h="30px"
+                        />
+                        <Box 
+                          position="absolute" 
+                          top="15%" 
+                          left="20%" 
+                          borderRadius="full" 
+                          bg="white" 
+                          opacity="0.8"
+                          boxShadow="md"
+                          w="80px" 
+                          h="40px"
+                        />
+                        <Box 
+                          position="absolute" 
+                          top="5%" 
+                          right="15%" 
+                          borderRadius="full" 
+                          bg="white" 
+                          opacity="0.8"
+                          boxShadow="md"
+                          w="70px" 
+                          h="35px"
+                        />
+                        
+                        {/* Server nodes with pulse animation */}
+                        <Grid templateColumns="repeat(3, 1fr)" gap={4} w="80%" mt={8}>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                            <GridItem key={i}>
+                              <Box 
+                                w="full" 
+                                h="50px" 
+                                bg={useColorModeValue('white', 'gray.700')} 
+                                borderRadius="md"
+                                boxShadow="md"
+                                position="relative"
+                                overflow="hidden"
+                              >
+                                <Box 
+                                  position="absolute"
+                                  bottom="0"
+                                  left="0"
+                                  right="0"
+                                  h="3px"
+                                  bg="blue.400"
+                                />
+                                <Box 
+                                  position="absolute"
+                                  top="50%"
+                                  left="50%"
+                                  transform="translate(-50%, -50%)"
+                                  w="8px"
+                                  h="8px"
+                                  borderRadius="full"
+                                  bg="blue.400"
+                                  opacity="0.6"
+                                  animation={`pulse 2s infinite ${i * 0.2}s`}
+                                  sx={{
+                                    '@keyframes pulse': {
+                                      '0%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.6 },
+                                      '50%': { transform: 'translate(-50%, -50%) scale(1.5)', opacity: 0.4 },
+                                      '100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.6 },
+                                    },
+                                  }}
+                                />
+                              </Box>
+                            </GridItem>
+                          ))}
+                        </Grid>
+                        
+                        {/* Connection lines */}
+                        <Box 
+                          position="absolute" 
+                          top="60%" 
+                          left="50%" 
+                          transform="translateX(-50%)"
+                          w="80%" 
+                          h="2px" 
+                          bg="blue.200"
+                        />
+                        
+                        {/* Database icon at bottom */}
+                        <Flex 
+                          position="absolute"
+                          bottom="10%"
+                          left="50%"
+                          transform="translateX(-50%)"
+                          bg={useColorModeValue('white', 'gray.700')}
+                          p={4}
+                          borderRadius="xl"
+                          boxShadow="lg"
+                          align="center"
+                          justify="center"
+                        >
+                          <Icon as={FaDatabase} boxSize={10} color="blue.500" />
+                        </Flex>
+                      </Flex>
+                    </Box>
+                  </Box>
+                </Flex>
+                
+                {/* Feature 2 - Enterprise Security */}
+                <Flex
+                  direction={{ base: 'column', lg: 'row' }}
+                  align="center"
+                  justify="space-between"
+                  gap={{ base: 10, lg: 16 }}
+                  w="full"
+                >
+                  {/* Feature Visual */}
+                  <Box 
+                    maxW={{ base: 'full', lg: '45%' }} 
+                    w="full" 
+                    h={{ base: '280px', md: '360px' }}
+                    position="relative"
+                    order={{ base: 1, lg: 1 }}
+                  >
+                    <Box
+                      position="absolute"
+                      inset="0"
+                      borderRadius="2xl"
+                      overflow="hidden"
+                      bg={useColorModeValue('purple.50', 'purple.900')}
+                      boxShadow="xl"
+                      p={6}
+                    >
+                      {/* Security Visualization */}
+                      <Flex direction="column" h="full" justify="center" align="center" position="relative">
+                        {/* Shield background */}
+                        <Box
+                          position="absolute"
+                          top="50%"
+                          left="50%"
+                          transform="translate(-50%, -50%)"
+                          w="220px"
+                          h="260px"
+                          borderRadius="xl"
+                          bg={useColorModeValue('white', 'gray.800')}
+                          boxShadow="lg"
+                          opacity="0.9"
+                        />
+                        
+                        {/* Shield outline */}
+                        <Box
+                          position="absolute"
+                          top="50%"
+                          left="50%"
+                          transform="translate(-50%, -50%)"
+                          w="200px"
+                          h="240px"
+                          borderRadius="xl"
+                          border="3px solid"
+                          borderColor="purple.400"
+                          opacity="0.8"
+                        />
+                        
+                        {/* Lock icon */}
+                        <Flex
+                          position="absolute"
+                          top="50%"
+                          left="50%"
+                          transform="translate(-50%, -50%)"
+                          w="120px"
+                          h="120px"
+                          borderRadius="full"
+                          bg={useColorModeValue('purple.100', 'purple.800')}
+                          align="center"
+                          justify="center"
+                          boxShadow="lg"
+                        >
+                          <Icon as={FaLock} boxSize={14} color="purple.500" />
+                        </Flex>
+                        
+                        {/* Animated security rings */}
+                        {[1, 2, 3].map((i) => (
+                          <Box
+                            key={i}
+                            position="absolute"
+                            top="50%"
+                            left="50%"
+                            transform="translate(-50%, -50%)"
+                            w={`${280 + i * 60}px`}
+                            h={`${280 + i * 60}px`}
+                            borderRadius="full"
+                            border="1px dashed"
+                            borderColor="purple.300"
+                            opacity="0.3"
+                            animation={`rotate ${6 + i}s linear infinite ${i}s`}
+                            sx={{
+                              '@keyframes rotate': {
+                                '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
+                                '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
+                              },
+                            }}
+                          />
+                        ))}
+                        
+                        {/* Security badges */}
+                        <Flex
+                          position="absolute"
+                          bottom="10%"
+                          left="50%"
+                          transform="translateX(-50%)"
+                          gap={3}
+                        >
+                          <Badge colorScheme="purple" fontSize="sm" px={3} py={1} borderRadius="full">SOC 2</Badge>
+                          <Badge colorScheme="purple" fontSize="sm" px={3} py={1} borderRadius="full">GDPR</Badge>
+                          <Badge colorScheme="purple" fontSize="sm" px={3} py={1} borderRadius="full">HIPAA</Badge>
+                        </Flex>
+                      </Flex>
+                    </Box>
+                  </Box>
+                  
+                  {/* Feature Content */}
+                  <Box maxW={{ base: 'full', lg: '50%' }} order={{ base: 2, lg: 2 }}>
+                    <VStack align="flex-start" spacing={6}>
+                      <Flex 
+                        p={4} 
+                        borderRadius="full"
+                        bg={useColorModeValue('purple.50', 'purple.900')}
+                        boxShadow="md"
+                      >
+                        <Icon as={FaLock} boxSize={8} color="purple.500" />
+                      </Flex>
+                      
+                      <Heading
+                        as="h3"
+                        fontSize={{ base: '3xl', md: '4xl' }}
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, purple.400, pink.500)"
+                        bgClip="text"
+                        letterSpacing="tight"
+                      >
+                        Enterprise Security
+                      </Heading>
+                      
+                      <Text fontSize="xl" color={subText} lineHeight="tall">
+                        Advanced security features including encryption at rest and in transit, role-based access control, and comprehensive audit logs. We maintain compliance with industry standards.
+                      </Text>
+                      
+                      <HStack spacing={6} pt={2}>
+                        <HStack spacing={2}>
+                          <Icon as={FaLock} color="purple.500" boxSize={4} />
+                          <Text fontWeight="medium">End-to-end encryption</Text>
+                        </HStack>
+                        
+                        <HStack spacing={2}>
+                          <Icon as={FaServer} color="purple.500" boxSize={4} />
+                          <Text fontWeight="medium">SOC 2 compliant</Text>
+                        </HStack>
+                      </HStack>
+                      
+                      <Button
+                        variant="ghost"
+                        colorScheme="purple"
+                        size="lg"
+                        rightIcon={<Box as="span" ml={1}>→</Box>}
+                        _hover={{ transform: 'translateX(4px)' }}
+                        transition="all 0.3s"
+                        mt={2}
+                      >
+                        Learn more about security
+                      </Button>
+                    </VStack>
+                  </Box>
+                </Flex>
+                
+                {/* Feature 3 - Auto-Scaling Storage */}
+                <Flex
+                  direction={{ base: 'column', lg: 'row' }}
+                  align="center"
+                  justify="space-between"
+                  gap={{ base: 10, lg: 16 }}
+                  w="full"
+                >
+                  {/* Feature Content */}
+                  <Box maxW={{ base: 'full', lg: '50%' }} order={{ base: 2, lg: 1 }}>
+                    <VStack align="flex-start" spacing={6}>
+                      <Flex 
+                        p={4} 
+                        borderRadius="full"
+                        bg={useColorModeValue('green.50', 'green.900')}
+                        boxShadow="md"
+                      >
+                        <Icon as={FaDatabase} boxSize={8} color="green.500" />
+                      </Flex>
+                        
+                      <Heading
+                        as="h3"
+                        fontSize={{ base: '3xl', md: '4xl' }}
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, green.400, teal.500)"
+                        bgClip="text"
+                        letterSpacing="tight"
+                      >
+                        Auto-Scaling Storage
+                      </Heading>
+                        
+                      <Text fontSize="xl" color={subText} lineHeight="tall">
+                        Storage automatically scales with your data needs. No need to provision or manage storage capacity. Our intelligent system ensures you never run out of space.
+                      </Text>
+                        
+                      <HStack spacing={6} pt={2}>
+                        <HStack spacing={2}>
+                          <Icon as={FaDatabase} color="green.500" boxSize={4} />
+                          <Text fontWeight="medium">Unlimited capacity</Text>
+                        </HStack>
+                          
+                        <HStack spacing={2}>
+                          <Icon as={FaChartLine} color="green.500" boxSize={4} />
+                          <Text fontWeight="medium">Automatic backups</Text>
+                        </HStack>
+                      </HStack>
+                      </HStack>
+                        
+                      <Button
+                        variant="ghost"
+                        colorScheme="green"
+                        size="lg"
+                        rightIcon={<Box as="span" ml={1}>→</Box>}
+                        _hover={{ transform: 'translateX(4px)' }}
+                        transition="all 0.3s"
+                        mt={2}
+                      >
+                        Learn more about storage
+                      </Button>
+                    </VStack>
+                  </Box>
+                  
+                  {/* Feature Visual */}
+                  <Box 
+                    maxW={{ base: 'full', lg: '45%' }} 
+                    w="full" 
+                    h={{ base: '280px', md: '360px' }}
+                    position="relative"
+                    order={{ base: 1, lg: 2 }}
+                  >
+                    <Box
+                      position="absolute"
+                      inset="0"
+                      borderRadius="2xl"
+                      overflow="hidden"
+                      bg={useColorModeValue('green.50', 'green.900')}
+                      boxShadow="xl"
+                      p={6}
+                    >
+                      {/* Storage Visualization */}
+                      <Flex direction="column" h="full" justify="center" align="center" position="relative">
+                        {/* Storage container */}
+                        <Box
+                          position="absolute"
+                          top="50%"
+                          left="50%"
+                          transform="translate(-50%, -50%)"
+                          w="80%"
+                          h="70%"
+                          borderRadius="xl"
+                          border="2px solid"
+                          borderColor="green.300"
+                          bg={useColorModeValue('white', 'gray.800')}
+                          boxShadow="lg"
+                          overflow="hidden"
+                        >
+                          {/* Animated fill level */}
+                          <Box
+                            position="absolute"
+                            bottom="0"
+                            left="0"
+                            right="0"
+                            height="40%"
+                            bgGradient="linear(to-t, green.400, teal.300)"
+                            animation="fillAnimation 10s infinite alternate"
+                            sx={{
+                              '@keyframes fillAnimation': {
+                                '0%': { height: '20%' },
+                                '50%': { height: '60%' },
+                                '100%': { height: '40%' },
+                              },
+                            }}
+                          />
+                          
+                          {/* Storage metrics */}
+                          <Flex
+                            position="absolute"
+                            top="10%"
+                            left="0"
+                            right="0"
+                            justify="center"
+                          >
+                            <Text fontWeight="bold" fontSize="sm" color={useColorModeValue('gray.700', 'white')}>
+                              Auto-Scaling Storage
+                            </Text>
+                          </Flex>
+                          
+                          {/* Database icons */}
+                          {[1, 2, 3, 4].map((i) => (
+                            <Flex
+                              key={i}
+                              position="absolute"
+                              top={`${20 + i * 15}%`}
+                              left={`${15 + i * 15}%`}
+                              bg={useColorModeValue('green.50', 'green.800')}
+                              p={2}
+                              borderRadius="md"
+                              boxShadow="sm"
+                              align="center"
+                              justify="center"
+                              opacity="0.8"
+                            >
+                              <Icon as={FaDatabase} boxSize={4} color="green.500" />
+                            </Flex>
+                          ))}
+                        </Box>
+                        
+                        {/* Capacity indicators */}
+                        <Flex
+                          position="absolute"
+                          bottom="10%"
+                          left="50%"
+                          transform="translateX(-50%)"
+                          bg={useColorModeValue('white', 'gray.700')}
+                          px={4}
+                          py={2}
+                          borderRadius="lg"
+                          boxShadow="md"
+                          gap={4}
+                        >
+                          <HStack>
+                            <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                            <Text fontSize="xs">Current: 4.2TB</Text>
+                          </HStack>
+                          
+                          <HStack>
+                            <Box w="8px" h="8px" borderRadius="full" bg="blue.400" />
+                            <Text fontSize="xs">Capacity: Unlimited</Text>
+                          </HStack>
+                        </Flex>
+                        
+                        {/* Expansion arrows */}
+                        {[1, 2, 3, 4].map((i) => (
+                          <Box
+                            key={i}
+                            position="absolute"
+                            top={`${20 + i * 15}%`}
+                            right="10%"
+                            transform="rotate(-45deg)"
+                            fontSize="lg"
+                            color="green.500"
+                            opacity="0.8"
+                            animation={`pulse 1.5s infinite ${i * 0.3}s`}
+                            sx={{
+                              '@keyframes pulse': {
+                                '0%': { transform: 'rotate(-45deg) scale(1)', opacity: 0.8 },
+                                '50%': { transform: 'rotate(-45deg) scale(1.2)', opacity: 0.6 },
+                                '100%': { transform: 'rotate(-45deg) scale(1)', opacity: 0.8 },
+                              },
+                            }}
+                          >
+                            ↗
+                          </Box>
+                        ))}
+                      </Flex>
+                    </Box>
+                  </Box>
+                </Flex>
+              </VStack>
+            </VStack>
+          </Container>
+        </Box>
+        
+        {/* Feature 4 */}
+        <Box as="section" py={{ base: 16, md: 24 }} bg={useColorModeValue('white', 'gray.800')}>
+          <Container maxW="7xl">
+            <VStack spacing={16} align="stretch">
+              <GridItem>
+                  <Box 
+                    h="full"
+                    position="relative"
+                    borderRadius="2xl" 
+                    overflow="hidden"
+                    transition="all 0.3s ease"
+                    _hover={{ transform: 'translateY(-8px)', boxShadow: 'xl' }}
+                    bg={useColorModeValue('white', 'gray.800')}
+                    boxShadow="lg"
+                  >
+                    {/* Gradient top border */}
+                    <Box 
+                      position="absolute" 
+                      top="0" 
+                      left="0" 
+                      right="0" 
+                      height="6px" 
+                      bgGradient="linear(to-r, orange.400, red.400)"
+                    />
+                    
+                    <Box p={8} pt={10}>
+                      <VStack spacing={6} align="flex-start">
+                        {/* Icon with gradient background */}
+                        <Flex 
+                          p={4} 
+                          borderRadius="xl"
+                          bgGradient="linear(to-br, orange.100, red.100)" 
+                          boxShadow="inner"
+                        >
+                          <Icon 
+                            as={FaChartLine} 
+                            boxSize={7} 
+                            color="orange.500"
+                          />
+                        </Flex>
+                        
+                        <Heading 
+                          as="h3" 
+                          fontSize="2xl" 
+                          fontWeight="bold"
+                          bgGradient="linear(to-r, orange.500, red.500)"
+                          bgClip="text"
+                        >
+                          Advanced Analytics
+                        </Heading>
+                        
+                        <Text fontSize="lg" color={subText} lineHeight="tall">
+                          Real-time insights and performance metrics to optimize your database operations and queries.
+                        </Text>
+                        
+                        {/* Feature highlight */}
+                        <HStack spacing={2} mt={2}>
+                          <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
+                          <Text fontSize="sm" fontWeight="medium" color="orange.500">
+                            Query optimization
+                          </Text>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </Box>
+                </GridItem>
+                
+                {/* Feature 5 */}
+                <GridItem>
+                  <Box 
+                    h="full"
+                    position="relative"
+                    borderRadius="2xl" 
+                    overflow="hidden"
+                    transition="all 0.3s ease"
+                    _hover={{ transform: 'translateY(-8px)', boxShadow: 'xl' }}
+                    bg={useColorModeValue('white', 'gray.800')}
+                    boxShadow="lg"
+                  >
+                    {/* Gradient top border */}
+                    <Box 
+                      position="absolute" 
+                      top="0" 
+                      left="0" 
+                      right="0" 
+                      height="6px" 
+                      bgGradient="linear(to-r, cyan.400, blue.400)"
+                    />
+                    
+                    <Box p={8} pt={10}>
+                      <VStack spacing={6} align="flex-start">
+                        {/* Icon with gradient background */}
+                        <Flex 
+                          p={4} 
+                          borderRadius="xl"
+                          bgGradient="linear(to-br, cyan.100, blue.100)" 
+                          boxShadow="inner"
+                        >
+                          <Icon 
+                            as={FaCode} 
+                            boxSize={7} 
+                            color="cyan.500"
+                          />
+                        </Flex>
+                        
+                        <Heading 
+                          as="h3" 
+                          fontSize="2xl" 
+                          fontWeight="bold"
+                          bgGradient="linear(to-r, cyan.500, blue.500)"
+                          bgClip="text"
+                        >
+                          Developer-Friendly API
+                        </Heading>
+                        
+                        <Text fontSize="lg" color={subText} lineHeight="tall">
+                          Comprehensive API and SDKs for all major programming languages to seamlessly integrate with your applications.
+                        </Text>
+                        
+                        {/* Feature highlight */}
+                        <HStack spacing={2} mt={2}>
+                          <Box w="8px" h="8px" borderRadius="full" bg="cyan.400" />
+                          <Text fontSize="sm" fontWeight="medium" color="cyan.500">
+                            GraphQL support
+                          </Text>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </Box>
+                </GridItem>
+                
+                {/* Feature 6 */}
+                <GridItem>
+                  <Box 
+                    h="full"
+                    position="relative"
+                    borderRadius="2xl" 
+                    overflow="hidden"
+                    transition="all 0.3s ease"
+                    _hover={{ transform: 'translateY(-8px)', boxShadow: 'xl' }}
+                    bg={useColorModeValue('white', 'gray.800')}
+                    boxShadow="lg"
+                  >
+                    {/* Gradient top border */}
+                    <Box 
+                      position="absolute" 
+                      top="0" 
+                      left="0" 
+                      right="0" 
+                      height="6px" 
+                      bgGradient="linear(to-r, yellow.400, orange.400)"
+                    />
+                    
+                    <Box p={8} pt={10}>
+                      <VStack spacing={6} align="flex-start">
+                        {/* Icon with gradient background */}
+                        <Flex 
+                          p={4} 
+                          borderRadius="xl"
+                          bgGradient="linear(to-br, yellow.100, orange.100)" 
+                          boxShadow="inner"
+                        >
+                          <Icon 
+                            as={FaServer} 
+                            boxSize={7} 
+                            color="yellow.500"
+                          />
+                        </Flex>
+                        
+                        <Heading 
+                          as="h3" 
+                          fontSize="2xl" 
+                          fontWeight="bold"
+                          bgGradient="linear(to-r, yellow.500, orange.500)"
+                          bgClip="text"
+                        >
+                          Global Distribution
+                        </Heading>
+                        
+                        <Text fontSize="lg" color={subText} lineHeight="tall">
+                          Deploy your databases in multiple regions worldwide for low-latency access and high availability.
+                        </Text>
+                        
+                        {/* Feature highlight */}
+                        <HStack spacing={2} mt={2}>
+                          <Box w="8px" h="8px" borderRadius="full" bg="yellow.400" />
+                          <Text fontSize="sm" fontWeight="medium" color="yellow.500">
+                            Multi-region replication
+                          </Text>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </Box>
+                </GridItem>
+              </Grid>
+            </VStack>
+          </Container>
+        </Box>
+        
+        {/* Testimonials Section */}
+        <Box 
+          as="section" 
+          py={{ base: 20, md: 32 }} 
+          bg={useColorModeValue('gray.50', 'gray.800')}
+          position="relative"
+          overflow="hidden"
+        >
+          {/* Decorative elements */}
+          <Box 
+            position="absolute" 
+            top="10%" 
+            left="-5%" 
+            width="200px" 
+            height="200px" 
+            borderRadius="full" 
+            bg="purple.50" 
+            opacity="0.4" 
+            zIndex="0"
+          />
+          <Box 
+            position="absolute" 
+            bottom="5%" 
+            right="-8%" 
+            width="300px" 
+            height="300px" 
+            borderRadius="full" 
+            bg="blue.50" 
+            opacity="0.3" 
+            zIndex="0"
+          />
+          
+          <Container maxW="7xl" position="relative" zIndex="1">
+            <VStack spacing={16}>
+              {/* Section Header */}
+              <VStack spacing={4} textAlign="center" maxW="3xl" mx="auto">
+                <Box 
+                  px={4} 
+                  py={2} 
+                  bg={useColorModeValue('teal.50', 'teal.900')} 
+                  borderRadius="full"
+                  boxShadow="sm"
+                >
+                  <Text 
+                    fontSize="sm" 
+                    fontWeight="bold" 
+                    letterSpacing="widest" 
+                    color="teal.500" 
+                    textTransform="uppercase"
+                  >
+                    Testimonials
+                  </Text>
+                </Box>
+                
+                <Heading 
+                  fontSize={{ base: '3xl', md: '4xl' }} 
+                  fontWeight="bold" 
+                  letterSpacing="tight"
+                >
+                  Loved by developers worldwide
+                </Heading>
+                
+                <Text 
+                  fontSize={{ base: 'lg', md: 'xl' }} 
+                  color={subText}
+                  maxW="2xl"
+                  lineHeight="tall"
+                >
+                  See what our customers have to say about their experience with Apployd DB's serverless database platform.
+                </Text>
+              </VStack>
+              
+              {/* Testimonials Grid */}
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10} w="full">
+                {/* Testimonial 1 */}
+                <Box 
+                  bg={useColorModeValue('white', 'gray.700')} 
+                  p={8} 
+                  borderRadius="xl" 
+                  boxShadow="md"
+                  position="relative"
+                >
+                  {/* Quote mark */}
+                  <Box 
+                    position="absolute" 
+                    top="-12px" 
+                    left="24px" 
+                    fontSize="6xl" 
+                    color={useColorModeValue('purple.200', 'purple.700')} 
+                    fontFamily="serif"
+                  >
+                    "
+                  </Box>
+                  
+                  <VStack spacing={6} align="flex-start">
+                    <Text fontSize="lg" fontStyle="italic" color={subText} pt={6}>
+                      Apployd DB has completely transformed how we manage our databases. The serverless architecture saves us thousands in infrastructure costs every month.
+                    </Text>
+                    
+                    <Divider borderColor={useColorModeValue('gray.200', 'gray.600')} />
+                    
+                    <Flex align="center">
+                      <Avatar 
+                        size="md" 
+                        name="Sarah Johnson" 
+                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80" 
+                        mr={4} 
+                      />
+                      <Box>
+                        <Text fontWeight="bold">Sarah Johnson</Text>
+                        <Text fontSize="sm" color={subText}>CTO at TechFlow</Text>
+                      </Box>
+                    </Flex>
+                  </VStack>
+                </Box>
+                
+                {/* Testimonial 2 */}
+                <Box 
+                  bg={useColorModeValue('white', 'gray.700')} 
+                  p={8} 
+                  borderRadius="xl" 
+                  boxShadow="md"
+                  position="relative"
+                >
+                  {/* Quote mark */}
+                  <Box 
+                    position="absolute" 
+                    top="-12px" 
+                    left="24px" 
+                    fontSize="6xl" 
+                    color={useColorModeValue('blue.200', 'blue.700')} 
+                    fontFamily="serif"
+                  >
+                    "
+                  </Box>
+                  
+                  <VStack spacing={6} align="flex-start">
+                    <Text fontSize="lg" fontStyle="italic" color={subText} pt={6}>
+                      The developer experience with Apployd DB is unmatched. Their API is intuitive, and the documentation is comprehensive. It's a joy to work with.
+                    </Text>
+                    
+                    <Divider borderColor={useColorModeValue('gray.200', 'gray.600')} />
+                    
+                    <Flex align="center">
+                      <Avatar 
+                        size="md" 
+                        name="David Chen" 
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80" 
+                        mr={4} 
+                      />
+                      <Box>
+                        <Text fontWeight="bold">David Chen</Text>
+                        <Text fontSize="sm" color={subText}>Lead Developer at Stackify</Text>
+                      </Box>
+                    </Flex>
+                  </VStack>
+                </Box>
+                
+                {/* Testimonial 3 */}
+                <Box 
+                  bg={useColorModeValue('white', 'gray.700')} 
+                  p={8} 
+                  borderRadius="xl" 
+                  boxShadow="md"
+                  position="relative"
+                >
+                  {/* Quote mark */}
+                  <Box 
+                    position="absolute" 
+                    top="-12px" 
+                    left="24px" 
+                    fontSize="6xl" 
+                    color={useColorModeValue('green.200', 'green.700')} 
+                    fontFamily="serif"
+                  >
+                    "
+                  </Box>
+                  
+                  <VStack spacing={6} align="flex-start">
+                    <Text fontSize="lg" fontStyle="italic" color={subText} pt={6}>
+                      We migrated from a traditional database to Apployd DB and saw immediate performance improvements. Our queries are now 3x faster with zero maintenance.
+                    </Text>
+                    
+                    <Divider borderColor={useColorModeValue('gray.200', 'gray.600')} />
+                    
+                    <Flex align="center">
+                      <Avatar 
+                        size="md" 
+                        name="Maya Patel" 
+                        src="https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80" 
+                        mr={4} 
+                      />
+                      <Box>
+                        <Text fontWeight="bold">Maya Patel</Text>
+                        <Text fontSize="sm" color={subText}>Engineering Manager at DataViz</Text>
+                      </Box>
+                    </Flex>
+                  </VStack>
+                </Box>
+              </SimpleGrid>
+            </VStack>
+          </Container>
+        </Box>
+        
+        {/* Trusted by logos */}
+        <VStack spacing={6} mt={{ base: 20, md: 32 }}>
+          <Text fontSize="sm" color={subText} letterSpacing="wide" fontWeight="medium" textAlign="center" textTransform="uppercase">
+            TRUSTED BY TEAMS AT
+          </Text>
+          <TrustedLogos />
+        </VStack>
+        
+        {/* Other Section */}
+        <Box 
+          as="section" 
+          py={{ base: 20, md: 32 }} 
+          position="relative"
+          overflow="hidden"
+          bg={useColorModeValue('gray.50', 'gray.800')}
+        >
+          {/* Decorative elements */}
+          <Box 
+            position="absolute" 
+            top="-10%" 
+            right="-5%" 
+            width="300px" 
+            height="300px" 
+            borderRadius="full" 
+            bg="purple.50" 
+            opacity="0.6" 
+            zIndex="0"
+          />
+          <Box 
+            position="absolute" 
+            bottom="-15%" 
+            left="-10%" 
+            width="400px" 
+            height="400px" 
+            borderRadius="full" 
+            bg="blue.50" 
+            opacity="0.4" 
+            zIndex="0"
+          />
+          
+          {/* Gradient overlay */}
+          <Box 
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bgGradient={useColorModeValue(
+              'linear(to-br, rgba(255,255,255,0.8), rgba(255,255,255,0.5))',
+              'linear(to-br, rgba(26,32,44,0.8), rgba(26,32,44,0.5))'
+            )}
+            zIndex="1"
+          />
+          
+          <Container maxW="7xl" position="relative" zIndex="2">
+            <VStack spacing={16}>
+              {/* Section Header with animated underline */}
+              <VStack spacing={6} textAlign="center" maxW="3xl" mx="auto">
+                <Box 
+                  px={4} 
+                  py={2} 
+                  bg={useColorModeValue('purple.50', 'purple.900')} 
+                  borderRadius="full"
+                  boxShadow="sm"
+                >
+                  <Text 
+                    fontSize="sm" 
+                    fontWeight="bold" 
+                    letterSpacing="widest" 
+                    color="purple.500" 
+                    textTransform="uppercase"
+                  >
+                    Other Resources
+                  </Text>
+                </Box>
+                
+                <Heading 
+                  fontSize={{ base: '4xl', md: '5xl' }} 
+                  fontWeight="bold" 
+                  letterSpacing="tight"
+                  bgGradient="linear(to-r, purple.400, blue.500)"
+                  bgClip="text"
+                  position="relative"
+                  _after={{
+                    content: '""',
+                    position: 'absolute',
+                    bottom: '-10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    height: '4px',
+                    width: '80px',
+                    borderRadius: 'full',
+                    bgGradient: 'linear(to-r, purple.400, blue.500)',
+                  }}
+                >
+                  Explore More Possibilities
+                </Heading>
+                
+                <Text 
+                  fontSize={{ base: 'lg', md: 'xl' }} 
+                  color={subText}
+                  maxW="2xl"
+                  lineHeight="tall"
+                >
+                  Discover additional tools, resources, and integrations to enhance your database experience and take your projects to the next level.
+                </Text>
+              </VStack>
+              
+              <Flex 
+                direction={{ base: 'column', md: 'row' }} 
+                gap={10} 
+                w="full" 
+                justify="center"
+                align="stretch"
+              >
+                {/* Card 1 - Enhanced with gradient border */}
+                <Box 
+                  position="relative"
+                  borderRadius="2xl" 
+                  flex="1" 
+                  maxW={{ base: 'full', md: '340px' }}
+                  transition="all 0.4s ease"
+                  _hover={{ transform: 'translateY(-8px)' }}
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    top: '-2px',
+                    right: '-2px',
+                    bottom: '-2px',
+                    left: '-2px',
+                    zIndex: '-1',
+                    borderRadius: '2xl',
+                    bgGradient: 'linear(to-r, purple.400, pink.400)',
+                  }}
+                >
+                  <Box 
+                    bg={bg} 
+                    p={8} 
+                    borderRadius="2xl" 
+                    height="full"
+                    boxShadow="lg"
+                  >
+                    <VStack spacing={6} align="flex-start" height="full">
+                      <Flex 
+                        p={4} 
+                        bgGradient="linear(to-r, purple.100, pink.100)" 
+                        color="purple.700" 
+                        borderRadius="xl"
+                        boxShadow="inner"
+                      >
+                        <Icon as={FaGithub} boxSize={8} />
+                      </Flex>
+                      
+                      <Heading 
+                        as="h3" 
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, purple.500, pink.500)"
+                        bgClip="text"
+                      >
+                        Open Source
+                      </Heading>
+                      
+                      <Text 
+                        color={subText}
+                        fontSize="lg"
+                        lineHeight="tall"
+                        flex="1"
+                      >
+                        Contribute to our open source projects and help shape the future of database technology with our collaborative community.
+                      </Text>
+                      
+                      <Button 
+                        as={RouterLink} 
+                        to="/resources" 
+                        variant="ghost" 
+                        colorScheme="purple" 
+                        size="lg"
+                        fontWeight="medium"
+                        rightIcon={<Box as="span" ml={2} fontSize="xl">→</Box>}
+                        _hover={{
+                          bgGradient: 'linear(to-r, purple.50, pink.50)',
+                          transform: 'translateX(4px)'
+                        }}
+                        transition="all 0.3s"
+                      >
+                        Learn more
+                      </Button>
+                    </VStack>
+                  </Box>
+                </Box>
+                
+                {/* Card 2 - Enhanced with gradient border */}
+                <Box 
+                  position="relative"
+                  borderRadius="2xl" 
+                  flex="1" 
+                  maxW={{ base: 'full', md: '340px' }}
+                  transition="all 0.4s ease"
+                  _hover={{ transform: 'translateY(-8px)' }}
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    top: '-2px',
+                    right: '-2px',
+                    bottom: '-2px',
+                    left: '-2px',
+                    zIndex: '-1',
+                    borderRadius: '2xl',
+                    bgGradient: 'linear(to-r, blue.400, cyan.400)',
+                  }}
+                >
+                  <Box 
+                    bg={bg} 
+                    p={8} 
+                    borderRadius="2xl" 
+                    height="full"
+                    boxShadow="lg"
+                  >
+                    <VStack spacing={6} align="flex-start" height="full">
+                      <Flex 
+                        p={4} 
+                        bgGradient="linear(to-r, blue.100, cyan.100)" 
+                        color="blue.700" 
+                        borderRadius="xl"
+                        boxShadow="inner"
+                      >
+                        <Icon as={FaGoogle} boxSize={8} />
+                      </Flex>
+                      
+                      <Heading 
+                        as="h3" 
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, blue.500, cyan.500)"
+                        bgClip="text"
+                      >
+                        Integrations
+                      </Heading>
+                      
+                      <Text 
+                        color={subText}
+                        fontSize="lg"
+                        lineHeight="tall"
+                        flex="1"
+                      >
+                        Connect your database with popular tools and services to streamline your workflow and maximize productivity.
+                      </Text>
+                      
+                      <Button 
+                        as={RouterLink} 
+                        to="/integrations" 
+                        variant="ghost" 
+                        colorScheme="blue" 
+                        size="lg"
+                        fontWeight="medium"
+                        rightIcon={<Box as="span" ml={2} fontSize="xl">→</Box>}
+                        _hover={{
+                          bgGradient: 'linear(to-r, blue.50, cyan.50)',
+                          transform: 'translateX(4px)'
+                        }}
+                        transition="all 0.3s"
+                      >
+                        Explore integrations
+                      </Button>
+                    </VStack>
+                  </Box>
+                </Box>
+                
+                {/* Card 3 - Enhanced with gradient border */}
+                <Box 
+                  position="relative"
+                  borderRadius="2xl" 
+                  flex="1" 
+                  maxW={{ base: 'full', md: '340px' }}
+                  transition="all 0.4s ease"
+                  _hover={{ transform: 'translateY(-8px)' }}
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    top: '-2px',
+                    right: '-2px',
+                    bottom: '-2px',
+                    left: '-2px',
+                    zIndex: '-1',
+                    borderRadius: '2xl',
+                    bgGradient: 'linear(to-r, green.400, teal.400)',
+                  }}
+                >
+                  <Box 
+                    bg={bg} 
+                    p={8} 
+                    borderRadius="2xl" 
+                    height="full"
+                    boxShadow="lg"
+                  >
+                    <VStack spacing={6} align="flex-start" height="full">
+                      <Flex 
+                        p={4} 
+                        bgGradient="linear(to-r, green.100, teal.100)" 
+                        color="green.700" 
+                        borderRadius="xl"
+                        boxShadow="inner"
+                      >
+                        <Icon as={FaAws} boxSize={8} />
+                      </Flex>
+                      
+                      <Heading 
+                        as="h3" 
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        bgGradient="linear(to-r, green.500, teal.500)"
+                        bgClip="text"
+                      >
+                        Cloud Partners
+                      </Heading>
+                      
+                      <Text 
+                        color={subText}
+                        fontSize="lg"
+                        lineHeight="tall"
+                        flex="1"
+                      >
+                        Deploy your databases on leading cloud platforms with optimized performance and enterprise-grade security.
+                      </Text>
+                      
+                      <Button 
+                        as={RouterLink} 
+                        to="/partners" 
+                        variant="ghost" 
+                        colorScheme="green" 
+                        size="lg"
+                        fontWeight="medium"
+                        rightIcon={<Box as="span" ml={2} fontSize="xl">→</Box>}
+                        _hover={{
+                          bgGradient: 'linear(to-r, green.50, teal.50)',
+                          transform: 'translateX(4px)'
+                        }}
+                        transition="all 0.3s"
+                      >
+                        View partners
+                      </Button>
+                    </VStack>
+                  </Box>
+                </Box>
+              </Flex>
+            </VStack>
+          </Container>
+        </Box>
+        
+        {/* Call-to-Action Section */}
+        <Box 
+          as="section" 
+          py={{ base: 24, md: 32 }}
+          bg={useColorModeValue('purple.50', 'purple.900')}
+          position="relative"
+          overflow="hidden"
+        >
+          {/* Decorative elements */}
+          <Box 
+            position="absolute" 
+            top="-10%" 
+            right="-5%" 
+            width="400px" 
+            height="400px" 
+            borderRadius="full" 
+            bgGradient="linear(to-r, purple.200, pink.200)" 
+            opacity="0.4" 
+            zIndex="0"
+            transform="rotate(-15deg)"
+          />
+          <Box 
+            position="absolute" 
+            bottom="-15%" 
+            left="-10%" 
+            width="500px" 
+            height="500px" 
+            borderRadius="full" 
+            bgGradient="linear(to-r, blue.200, purple.200)" 
+            opacity="0.3" 
+            zIndex="0"
+            transform="rotate(20deg)"
+          />
+          
+          <Container maxW="7xl" position="relative" zIndex="1">
+            <Flex 
+              direction={{ base: 'column', md: 'row' }} 
+              align="center" 
+              justify="space-between"
+              gap={{ base: 10, md: 16 }}
+            >
+              <VStack 
+                spacing={6} 
+                align={{ base: 'center', md: 'flex-start' }}
+                textAlign={{ base: 'center', md: 'left' }}
+                maxW="xl"
+              >
+                <Heading 
+                  fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }} 
+                  fontWeight="bold" 
+                  lineHeight="shorter"
+                  bgGradient="linear(to-r, purple.500, pink.500)"
+                  bgClip="text"
+                >
+                  Ready to transform your database experience?
+                </Heading>
+                
+                <Text 
+                  fontSize={{ base: 'lg', md: 'xl' }} 
+                  color={useColorModeValue('gray.600', 'gray.300')}
+                  lineHeight="tall"
+                >
+                  Start building with Apployd DB today and experience the future of serverless databases. No credit card required to get started.
+                </Text>
+                
+                <HStack spacing={4} pt={4}>
+                  <Button
+                    as={RouterLink}
+                    to={isAuthenticated ? "/dashboard" : "/register"}
+                    size="lg"
+                    height="56px"
+                    px={8}
+                    fontSize="md"
+                    fontWeight="bold"
+                    colorScheme="purple"
+                    bgGradient="linear(to-r, purple.500, pink.500)"
+                    _hover={{
+                      bgGradient: 'linear(to-r, purple.600, pink.600)',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 'lg'
+                    }}
+                    transition="all 0.3s"
+                  >
+                    {isAuthenticated ? 'Go to Dashboard' : 'Get Started for Free'}
+                  </Button>
+                  
+                  <Button
+                    as={RouterLink}
+                    to="/documentation"
+                    size="lg"
+                    height="56px"
+                    px={8}
+                    fontSize="md"
+                    fontWeight="bold"
+                    variant="outline"
+                    colorScheme="purple"
+                    borderWidth="2px"
+                    _hover={{
+                      bg: useColorModeValue('purple.50', 'purple.800'),
+                      transform: 'translateY(-2px)',
+                      boxShadow: 'md'
+                    }}
+                    transition="all 0.3s"
+                  >
+                    Read Documentation
+                  </Button>
+                </HStack>
+                
+                <HStack spacing={2} pt={4}>
+                  <Icon as={FaRocket} color="purple.500" />
+                  <Text fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
+                    Join over 10,000+ developers already using Apployd DB
+                  </Text>
+                </HStack>
+              </VStack>
+              
+              <Box 
+                maxW={{ base: '100%', md: '450px' }}
+                w="full"
+                h={{ base: '300px', md: '400px' }}
+                position="relative"
+                borderRadius="2xl"
+                overflow="hidden"
+                boxShadow="2xl"
+              >
+                {/* Stylized image or illustration */}
+                <Box 
+                  position="absolute"
+                  top="0"
+                  left="0"
+                  right="0"
+                  bottom="0"
+                  bg={useColorModeValue('white', 'gray.800')}
+                  borderRadius="2xl"
+                  p={6}
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  {/* Database visualization */}
+                  <Box 
+                    w="full" 
+                    h="full" 
+                    position="relative"
+                    borderRadius="xl"
+                    overflow="hidden"
+                    bg={useColorModeValue('gray.50', 'gray.700')}
+                    p={4}
+                  >
+                    {/* Terminal-like header */}
+                    <Flex 
+                      mb={4} 
+                      align="center" 
+                      justify="space-between"
+                      bg={useColorModeValue('gray.100', 'gray.600')}
+                      p={2}
+                      borderRadius="md"
+                    >
+                      <Text fontWeight="bold" fontSize="sm">Apployd DB Console</Text>
+                      <HStack spacing={1}>
+                        <Box w="10px" h="10px" borderRadius="full" bg="red.400" />
+                        <Box w="10px" h="10px" borderRadius="full" bg="yellow.400" />
+                        <Box w="10px" h="10px" borderRadius="full" bg="green.400" />
+                      </HStack>
+                    </Flex>
+                    
+                    {/* Database visualization content */}
+                    <VStack spacing={3} align="stretch">
+                      <HStack spacing={2}>
+                        <Badge colorScheme="purple">Connected</Badge>
+                        <Text fontSize="xs" color={useColorModeValue('gray.500', 'gray.400')}>Serverless DB • us-west-1</Text>
+                      </HStack>
+                      
+                      {/* Table visualization */}
+                      <Box 
+                        borderWidth="1px" 
+                        borderColor={useColorModeValue('gray.200', 'gray.600')} 
+                        borderRadius="md"
+                        overflow="hidden"
+                      >
+                        <Box bg={useColorModeValue('gray.50', 'gray.700')} p={2} borderBottomWidth="1px">
+                          <Text fontSize="xs" fontWeight="bold">users</Text>
+                        </Box>
+                        <Box p={2}>
+                          <Grid templateColumns="repeat(3, 1fr)" gap={2} fontSize="xs">
+                            <GridItem fontWeight="bold">id</GridItem>
+                            <GridItem fontWeight="bold">name</GridItem>
+                            <GridItem fontWeight="bold">email</GridItem>
+                            
+                            <GridItem>1</GridItem>
+                            <GridItem>John Doe</GridItem>
+                            <GridItem>john@example.com</GridItem>
+                            
+                            <GridItem>2</GridItem>
+                            <GridItem>Jane Smith</GridItem>
+                            <GridItem>jane@example.com</GridItem>
+                          </Grid>
+                        </Box>
+                      </Box>
+                      
+                      <Box 
+                        borderWidth="1px" 
+                        borderColor={useColorModeValue('gray.200', 'gray.600')} 
+                        borderRadius="md"
+                        p={2}
+                      >
+                        <Text fontSize="xs" fontFamily="mono" color="green.500">
+                          SELECT * FROM users WHERE active = true;
+                        </Text>
+                      </Box>
+                      
+                      <Flex justify="space-between" align="center">
+                        <Badge colorScheme="green">Query time: 4.2ms</Badge>
+                        <HStack>
+                          <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                          <Text fontSize="xs">Live</Text>
+                        </HStack>
+                      </Flex>
+                    </VStack>
+                  </Box>
+                </Box>
+              </Box>
+            </Flex>
+          </Container>
+        </Box>
+      </Container>
+    </Box>
+  );
+};
+
+export default Home;
