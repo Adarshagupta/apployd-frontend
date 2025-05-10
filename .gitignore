@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+.env
+dist/
+build/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db
