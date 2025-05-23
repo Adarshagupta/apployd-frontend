@@ -78,7 +78,7 @@ authAxios.interceptors.response.use(
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
         // Token refresh failed, clear tokens and redirect to login
-        localStorage.removeItem('neon_auth_token');
+      localStorage.removeItem('neon_auth_token');
         localStorage.removeItem('neon_refresh_token');
         window.location.href = '/login';
       }

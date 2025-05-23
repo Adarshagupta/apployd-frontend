@@ -52,9 +52,16 @@ import {
   Select,
   SimpleGrid,
   Code,
-  Tooltip
+  Tooltip,
+  Tag,
+  Kbd,
+  InputGroup,
+  InputRightElement,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
-import { FiPlay, FiSave, FiDownload, FiCopy, FiRefreshCw, FiChevronDown, FiDatabase, FiTable, FiPlus, FiTrash2, FiEdit, FiEye, FiList } from 'react-icons/fi';
+import { FiPlay, FiSave, FiDownload, FiCopy, FiRefreshCw, FiChevronDown, FiDatabase, FiTable, FiPlus, FiTrash2, FiEdit, FiEye, FiList, FiCommand, FiInfo, FiMaximize, FiMinimize, FiZap, FiCheckSquare, FiBookmark } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const QueryPage = () => {
   const { currentUser } = useAuth();
@@ -89,6 +96,10 @@ const QueryPage = () => {
     { name: 'created_at', type: 'TIMESTAMP', constraints: 'DEFAULT CURRENT_TIMESTAMP' }
   ]);
   
+  // Add new states for enhanced UI
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [queryHistory, setQueryHistory] = useState([]);
+  
   // Modal states
   const { 
     isOpen: isCreateTableOpen, 
@@ -103,9 +114,24 @@ const QueryPage = () => {
   } = useDisclosure();
   
   const textareaRef = useRef(null);
-  const bgColor = useColorModeValue('white', 'gray.700');
-  const tableBgColor = useColorModeValue('gray.50', 'gray.800');
+  
+  // Theme colors - modernized
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const tableBgColor = useColorModeValue('gray.50', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const headerBgGradient = useColorModeValue(
+    'linear(to-r, brand.500, purple.500)',
+    'linear(to-r, brand.600, purple.600)'
+  );
+  const textEditorBg = useColorModeValue('gray.50', 'gray.900');
+  const textEditorColor = useColorModeValue('gray.800', 'white');
+  const textEditorBorder = useColorModeValue('brand.100', 'purple.800');
+  const tableHeaderBg = useColorModeValue('gray.100', 'gray.700');
+  const tableBorder = useColorModeValue('gray.200', 'gray.600');
+  const resultCardBg = useColorModeValue('white', 'gray.800');
+  const cardHoverBg = useColorModeValue('gray.50', 'gray.700');
+  const accentColor = useColorModeValue('brand.500', 'brand.300');
+  const tableRowHoverBg = useColorModeValue('brand.50', 'gray.700');
 
   // Redirect if no database ID is provided
   useEffect(() => {
@@ -229,7 +255,7 @@ const QueryPage = () => {
     }
   };
 
-  // Execute SQL query
+  // Create new enhanced version of executeQuery
   const executeQuery = async () => {
     if (!sql.trim()) {
       toast({
@@ -248,6 +274,16 @@ const QueryPage = () => {
       
       const result = await neonApi.executeSQL(sql, database.connection);
       setResults(result);
+      
+      // Add to query history
+      setQueryHistory([
+        { 
+          timestamp: new Date().toLocaleTimeString(), 
+          sql: sql.substring(0, 80) + (sql.length > 80 ? '...' : ''),
+          status: 'success'
+        },
+        ...queryHistory.slice(0, 9) // Keep last 10 queries
+      ]);
       
       // Refresh tables list if this was a DDL command (CREATE, ALTER, DROP)
       const sqlLower = sql.toLowerCase();
@@ -269,6 +305,16 @@ const QueryPage = () => {
     } catch (error) {
       setError(error.message || 'Query execution failed');
       setResults(null);
+      
+      // Add to query history
+      setQueryHistory([
+        { 
+          timestamp: new Date().toLocaleTimeString(), 
+          sql: sql.substring(0, 80) + (sql.length > 80 ? '...' : ''),
+          status: 'error'
+        },
+        ...queryHistory.slice(0, 9) // Keep last 10 queries
+      ]);
       
       toast({
         title: 'Query error',
@@ -462,6 +508,11 @@ const QueryPage = () => {
     }
   }, [database]);
 
+  // Toggle fullscreen editor
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   if (isLoading) {
     return (
       <Flex justify="center" align="center" height="80vh">
@@ -487,125 +538,221 @@ const QueryPage = () => {
   }
 
   return (
-    <Container maxW="container.xl" py={6}>
-      <Card mb={4}>
-        <CardHeader>
+    <Container maxW="container.xl" py={4}>
+      <motion.div
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card mb={4} boxShadow="md" borderRadius="xl" overflow="hidden">
+          <Box
+            bgGradient={headerBgGradient}
+            color="white"
+            py={3}
+            px={6}
+          >
           <HStack justify="space-between">
             <Flex align="center">
               <FiDatabase size={20} />
-              <Heading size="md" ml={2}>{database?.name || 'SQL Editor'}</Heading>
+                <Heading size="md" ml={2} fontWeight="500">{database?.name || 'SQL Editor'}</Heading>
               {isLoading && <Spinner size="sm" ml={2} />}
       </Flex>
 
             <HStack>
-              <Button 
-                size="sm"
-                leftIcon={<FiRefreshCw />} 
+                <Tooltip label="Refresh Tables">
+                  <IconButton
+                    icon={<FiRefreshCw />}
                 onClick={fetchTables}
                 isLoading={isLoadingTables}
-              >
-                Refresh
-              </Button>
+                    variant="ghost"
+                    _hover={{ bg: 'whiteAlpha.200' }}
+                    color="white"
+                    aria-label="Refresh"
+                  />
+                </Tooltip>
+                <Tag colorScheme="green" size="sm" borderRadius="full">
+                  Connected
+                </Tag>
             </HStack>
           </HStack>
-            </CardHeader>
+          </Box>
         
-            <CardBody>
-          <Tabs isFitted variant="enclosed">
-            <TabList>
-              <Tab><HStack><FiPlay size={16} /><Text>Query Editor</Text></HStack></Tab>
-              <Tab><HStack><FiTable size={16} /><Text>Tables</Text></HStack></Tab>
+          <CardBody p={0}>
+            <Tabs variant="soft-rounded" colorScheme="brand" p={5}>
+              <TabList mb={4}>
+                <Tab _selected={{ bg: accentColor, color: 'white' }} px={4} fontWeight="medium">
+                  <HStack><FiPlay size={16} /><Text>Query Editor</Text></HStack>
+                </Tab>
+                <Tab _selected={{ bg: accentColor, color: 'white' }} px={4} fontWeight="medium">
+                  <HStack><FiTable size={16} /><Text>Tables</Text></HStack>
+                </Tab>
             </TabList>
             
             <TabPanels>
-              {/* Query Editor Tab */}
+                {/* Query Editor Tab - Enhanced */}
               <TabPanel px={0}>
-                <Flex direction="column" h="calc(100vh - 280px)">
+                  <Grid templateColumns={isFullscreen ? "1fr" : "3fr 1fr"} gap={4}>
+                    <GridItem>
+                      <Card 
+                        borderRadius="lg" 
+                        bg={textEditorBg} 
+                        boxShadow="sm"
+                        borderWidth="1px"
+                        borderColor={textEditorBorder}
+                        mb={4}
+                        position="relative"
+                        overflow="hidden"
+                      >
+                        <Flex justify="space-between" alignItems="center" px={4} pt={3} pb={1}>
+                          <HStack>
+                            <Tag size="sm" colorScheme="purple">SQL</Tag>
+                            <Text fontSize="sm" color="gray.500">Editor</Text>
+                          </HStack>
+                          <Tooltip label={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                            <IconButton
+                              size="sm"
+                              icon={isFullscreen ? <FiMinimize /> : <FiMaximize />}
+                              variant="ghost"
+                              onClick={toggleFullscreen}
+                              aria-label="Toggle fullscreen"
+                            />
+                          </Tooltip>
+                        </Flex>
+                        <Box px={4} pb={4}>
                   <Textarea
                     ref={textareaRef}
                     value={sql}
                     onChange={(e) => setSql(e.target.value)}
                     placeholder="Enter SQL query here..."
                     resize="none"
-                    h="200px"
-                    fontFamily="monospace"
-                    mb={4}
+                            h={isFullscreen ? "60vh" : "220px"}
+                            fontFamily="mono"
+                            fontSize="md"
+                            bg={textEditorBg}
+                            color={textEditorColor}
+                            border="none"
+                            _focus={{
+                              outline: "none",
+                              boxShadow: "none",
+                            }}
+                            sx={{
+                              '&::-webkit-scrollbar': {
+                                width: '8px',
+                              },
+                              '&::-webkit-scrollbar-track': {
+                                background: 'transparent',
+                              },
+                              '&::-webkit-scrollbar-thumb': {
+                                background: 'gray.300',
+                                borderRadius: '4px',
+                              },
+                            }}
                   />
-                  
-                  <Flex justify="space-between" mb={4}>
+                        </Box>
+                        <Flex justify="space-between" bg={tableBgColor} p={3} borderTop="1px" borderColor={tableBorder}>
                     <HStack>
                       <Button
-                        colorScheme="blue"
-                        leftIcon={<FiPlay />}
+                              colorScheme="brand"
+                              leftIcon={<FiZap />}
                         onClick={executeQuery}
                         isLoading={isExecuting}
+                              borderRadius="full"
+                              size="sm"
+                              fontWeight="medium"
                       >
                         Execute
                       </Button>
                       
                     <Button 
-                        leftIcon={<FiSave />}
+                              leftIcon={<FiBookmark />}
                         onClick={saveQuery}
+                              borderRadius="full"
+                              size="sm"
+                              variant="outline"
                       >
                         Save Query
                       </Button>
                     </HStack>
                     
-                    <Menu>
-                      <MenuButton as={Button} rightIcon={<FiChevronDown />}>
-                        Saved Queries
-                      </MenuButton>
-                      <MenuList>
-                        {savedQueries.map(query => (
-                          <MenuItem key={query.id} onClick={() => loadQuery(query)}>
-                      {query.name}
-                          </MenuItem>
-                        ))}
-                      </MenuList>
-                    </Menu>
+                          <Tooltip label="Keyboard shortcut: Ctrl+Enter">
+                            <Kbd size="xs">⌘+Enter</Kbd>
+                          </Tooltip>
                   </Flex>
+                      </Card>
                   
                   {error && (
-                    <Alert status="error" mb={4}>
+                        <Alert status="error" mb={4} borderRadius="lg">
                       <AlertIcon />
                       {error}
                     </Alert>
                   )}
                   
                   {results && (
-                    <Box overflowX="auto" flex="1">
-                      <Flex justify="space-between" mb={2}>
-                        <Text fontWeight="bold">
+                        <Card 
+                          bg={resultCardBg} 
+                          boxShadow="sm" 
+                          borderRadius="lg" 
+                          overflow="hidden"
+                          transition="all 0.2s" 
+                          _hover={{ transform: "translateY(-2px)", boxShadow: "md" }} 
+                          mb={4}
+                        >
+                          <Box bg={accentColor} py={2} px={4}>
+                            <Flex justify="space-between" align="center">
+                              <HStack>
+                                <Text color="white" fontWeight="medium">
                           {results.command} | {results.rows?.length || 0} rows
                         </Text>
+                                {results.command === 'SELECT' && (
+                                  <Tag size="sm" colorScheme="green" variant="solid">
+                                    {results.rows?.length || 0} Results
+                                  </Tag>
+                                )}
+                              </HStack>
                         <HStack>
+                                <Tooltip label="Copy as CSV">
                           <IconButton
                             icon={<FiCopy />}
                             size="sm"
-                            aria-label="Copy results"
+                                    variant="ghost"
+                                    color="white"
+                                    _hover={{ bg: 'whiteAlpha.200' }}
                             onClick={copyResults}
+                                    aria-label="Copy results"
                           />
+                                </Tooltip>
+                                <Tooltip label="Download CSV">
                           <IconButton
                             icon={<FiDownload />}
                             size="sm"
-                            aria-label="Download as CSV"
+                                    variant="ghost"
+                                    color="white"
+                                    _hover={{ bg: 'whiteAlpha.200' }}
                             onClick={downloadResults}
+                                    aria-label="Download as CSV"
                           />
+                                </Tooltip>
                         </HStack>
                       </Flex>
-                      
-                      {results.rows && results.rows.length > 0 && (
-                        <Table variant="simple" size="sm" bg={bgColor}>
-                          <Thead>
+                          </Box>
+                          <CardBody p={0}>
+                            {results.rows && results.rows.length > 0 ? (
+                              <Box overflow="auto" maxH="400px">
+                                <Table variant="simple" size="sm">
+                                  <Thead bg={tableHeaderBg}>
                             <Tr>
                               {Object.keys(results.rows[0]).map(column => (
-                                <Th key={column}>{column}</Th>
+                                        <Th key={column} py={3}>{column}</Th>
                               ))}
                             </Tr>
                           </Thead>
                           <Tbody>
                             {results.rows.map((row, rowIndex) => (
-                              <Tr key={rowIndex}>
+                                      <Tr 
+                                        key={rowIndex}
+                                        _hover={{ bg: tableRowHoverBg }}
+                                        transition="background-color 0.2s"
+                                      >
                                 {Object.values(row).map((cell, cellIndex) => (
                                   <Td key={cellIndex}>{String(cell !== null ? cell : 'NULL')}</Td>
                                 ))}
@@ -613,19 +760,104 @@ const QueryPage = () => {
                             ))}
                           </Tbody>
                         </Table>
-                      )}
+                              </Box>
+                            ) : (
+                              <Box p={4} textAlign="center">
+                                <Text>Operation completed - no rows returned</Text>
                     </Box>
                   )}
+                          </CardBody>
+                        </Card>
+                      )}
+                    </GridItem>
+                    
+                    {!isFullscreen && (
+                      <GridItem>
+                        <VStack spacing={4} align="stretch">
+                          <Card boxShadow="sm" borderRadius="lg">
+                            <CardHeader pb={2}>
+                              <HStack>
+                                <FiCommand />
+                                <Heading size="sm">Saved Queries</Heading>
+                              </HStack>
+                            </CardHeader>
+                            <CardBody pt={0}>
+                              {savedQueries.length > 0 ? (
+                                <VStack spacing={2} align="stretch" maxH="200px" overflowY="auto">
+                                  {savedQueries.map(query => (
+                                    <Button
+                                      key={query.id}
+                                      variant="ghost"
+                                      justifyContent="flex-start"
+                                      fontSize="sm"
+                                      leftIcon={<FiCheckSquare size={14} />}
+                                      onClick={() => loadQuery(query)}
+                                      _hover={{ bg: cardHoverBg }}
+                                      borderRadius="md"
+                                      size="sm"
+                                    >
+                                      {query.name}
+                                    </Button>
+                                  ))}
+                                </VStack>
+                              ) : (
+                                <Text fontSize="sm" color="gray.500">No saved queries</Text>
+                              )}
+                            </CardBody>
+                          </Card>
+                          
+                          <Card boxShadow="sm" borderRadius="lg">
+                            <CardHeader pb={2}>
+                              <HStack>
+                                <FiInfo />
+                                <Heading size="sm">Query History</Heading>
+                              </HStack>
+                            </CardHeader>
+                            <CardBody pt={0}>
+                              {queryHistory.length > 0 ? (
+                                <VStack spacing={2} align="stretch" maxH="200px" overflowY="auto">
+                                  {queryHistory.map((entry, index) => (
+                                    <Flex 
+                                      key={index} 
+                                      p={2} 
+                                      borderRadius="md" 
+                                      bg={entry.status === 'error' ? 'red.50' : 'green.50'}
+                                      _dark={{
+                                        bg: entry.status === 'error' ? 'red.900' : 'green.900',
+                                      }}
+                                      align="center"
+                                      fontSize="xs"
+                                    >
+                                      <Badge 
+                                        colorScheme={entry.status === 'error' ? 'red' : 'green'} 
+                                        mr={2}
+                                      >
+                                        {entry.status}
+                                      </Badge>
+                                      <Box flex="1" isTruncated>{entry.sql}</Box>
+                                      <Text color="gray.500" ml={2}>{entry.timestamp}</Text>
                 </Flex>
+                                  ))}
+                                </VStack>
+                              ) : (
+                                <Text fontSize="sm" color="gray.500">No query history</Text>
+                              )}
+                            </CardBody>
+                          </Card>
+                        </VStack>
+                      </GridItem>
+                    )}
+                  </Grid>
               </TabPanel>
               
               {/* Tables Tab */}
               <TabPanel px={0}>
                 <HStack spacing={4} mb={4}>
                   <Button 
-                    colorScheme="blue" 
+                      colorScheme="brand" 
                     leftIcon={<FiPlus />}
                     onClick={onCreateTableOpen}
+                      borderRadius="full"
                   >
                     Create Table
                   </Button>
@@ -634,21 +866,36 @@ const QueryPage = () => {
                     leftIcon={<FiRefreshCw />}
                     onClick={fetchTables}
                     isLoading={isLoadingTables}
+                      variant="outline"
+                      borderRadius="full"
                   >
                     Refresh Tables
                   </Button>
                 </HStack>
                 
                 {tables.length === 0 ? (
-                  <Alert status="info">
-                    <AlertIcon />
-                    No tables found in this database. Create a new table to get started.
+                    <Alert 
+                      status="info" 
+                      borderRadius="lg"
+                      variant="subtle"
+                      flexDirection="column"
+                      alignItems="center"
+                      justifyContent="center"
+                      textAlign="center"
+                      py={6}
+                    >
+                      <Box mb={3}>
+                        <FiTable size={30} />
+                      </Box>
+                      <AlertIcon boxSize={5} mr={0} display="none" />
+                      <Text mb={2} fontWeight="medium">No tables found in this database</Text>
+                      <Text fontSize="sm">Create a new table to get started</Text>
                   </Alert>
                 ) : (
-                  <Card variant="outline" boxShadow="sm">
+                    <Card variant="outline" boxShadow="sm" borderRadius="lg" overflow="hidden">
                     <CardBody p={0}>
                       <Table variant="simple">
-                        <Thead bg={tableBgColor}>
+                          <Thead bg={tableHeaderBg}>
                           <Tr>
                             <Th>Table Name</Th>
                             <Th>Size</Th>
@@ -657,9 +904,22 @@ const QueryPage = () => {
                         </Thead>
                         <Tbody>
                           {tables.map((table, index) => (
-                            <Tr key={index}>
-                              <Td fontWeight="medium">{table.name}</Td>
-                              <Td>{table.size}</Td>
+                              <Tr 
+                                key={index}
+                                _hover={{ bg: tableRowHoverBg }}
+                                transition="background-color 0.2s"
+                              >
+                                <Td fontWeight="medium">
+                                  <HStack>
+                                    <FiTable size={14} />
+                                    <Text>{table.name}</Text>
+                                  </HStack>
+                                </Td>
+                                <Td>
+                                  <Tag size="sm" colorScheme="blue" variant="subtle">
+                                    {table.size}
+                                  </Tag>
+                                </Td>
                               <Td textAlign="right">
                                 <HStack spacing={2} justify="flex-end">
                                   <Tooltip label="View Data">
@@ -668,6 +928,8 @@ const QueryPage = () => {
                                       size="sm"
                                       onClick={() => fetchTableData(table.name)}
                                       aria-label="View table data"
+                                        variant="ghost"
+                                        colorScheme="blue"
                                     />
                                   </Tooltip>
                                   <Tooltip label="Query Data">
@@ -676,6 +938,8 @@ const QueryPage = () => {
                                       size="sm"
                                       onClick={() => generateSelectSQL(table.name)}
                                       aria-label="Query table"
+                                        variant="ghost"
+                                        colorScheme="brand"
                                     />
                                   </Tooltip>
                                   <Tooltip label="Drop Table">
@@ -702,14 +966,17 @@ const QueryPage = () => {
           </Tabs>
             </CardBody>
           </Card>
+      </motion.div>
 
       {/* Create Table Modal */}
       <Modal isOpen={isCreateTableOpen} onClose={onCreateTableClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create New Table</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalOverlay backdropFilter="blur(2px)" />
+        <ModalContent borderRadius="xl">
+          <ModalHeader bgGradient={headerBgGradient} color="white" borderTopRadius="xl">
+            Create New Table
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody py={6}>
             <VStack spacing={4} align="stretch">
               <Text>Define your table columns:</Text>
               
@@ -722,6 +989,7 @@ const QueryPage = () => {
                       value={column.name}
                       onChange={(e) => updateNewColumn(index, 'name', e.target.value)}
                       placeholder="column_name"
+                      borderRadius="md"
                     />
                   </FormControl>
                   
@@ -731,6 +999,7 @@ const QueryPage = () => {
                       size="sm"
                       value={column.type}
                       onChange={(e) => updateNewColumn(index, 'type', e.target.value)}
+                      borderRadius="md"
                     >
                       <option value="SERIAL">SERIAL</option>
                       <option value="INTEGER">INTEGER</option>
@@ -752,6 +1021,7 @@ const QueryPage = () => {
                       value={column.constraints}
                       onChange={(e) => updateNewColumn(index, 'constraints', e.target.value)}
                       placeholder="NOT NULL, PRIMARY KEY, etc."
+                      borderRadius="md"
                     />
                   </FormControl>
                   
@@ -768,49 +1038,57 @@ const QueryPage = () => {
                 </HStack>
               ))}
               
-              <Button leftIcon={<FiPlus />} onClick={addNewColumn} size="sm" alignSelf="flex-start">
+              <Button leftIcon={<FiPlus />} onClick={addNewColumn} size="sm" alignSelf="flex-start" borderRadius="md">
                 Add Column
               </Button>
             </VStack>
           </ModalBody>
           
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={generateCreateTableSQL}>
+            <Button colorScheme="gray" mr={3} onClick={onCreateTableClose} borderRadius="full">
+              Cancel
+            </Button>
+            <Button colorScheme="brand" onClick={generateCreateTableSQL} borderRadius="full">
               Generate SQL
             </Button>
-            <Button variant="ghost" onClick={onCreateTableClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
       
       {/* View Table Modal */}
       <Modal isOpen={isViewTableOpen} onClose={onViewTableClose} size="6xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{selectedTable} Table Data</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Tabs isFitted>
-              <TabList>
-                <Tab>Data Preview</Tab>
-                <Tab>Table Structure</Tab>
+        <ModalOverlay backdropFilter="blur(2px)" />
+        <ModalContent borderRadius="xl">
+          <ModalHeader bgGradient={headerBgGradient} color="white" borderTopRadius="xl">
+            {selectedTable} Table Data
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody p={4}>
+            <Tabs colorScheme="brand" variant="soft-rounded">
+              <TabList mb={4}>
+                <Tab _selected={{ bg: accentColor, color: 'white' }} px={4} fontWeight="medium">Data Preview</Tab>
+                <Tab _selected={{ bg: accentColor, color: 'white' }} px={4} fontWeight="medium">Table Structure</Tab>
               </TabList>
               
               <TabPanels>
                 <TabPanel px={0}>
                   {tableData?.rows && tableData.rows.length > 0 ? (
-                <Box overflowX="auto">
+                    <Box overflowX="auto" borderRadius="lg" borderWidth="1px" borderColor={tableBorder}>
                     <Table variant="simple" size="sm">
-                      <Thead>
+                        <Thead bg={tableHeaderBg}>
                         <Tr>
                             {Object.keys(tableData.rows[0]).map(column => (
-                              <Th key={column}>{column}</Th>
+                              <Th key={column} py={3}>{column}</Th>
                           ))}
                         </Tr>
                       </Thead>
                       <Tbody>
                           {tableData.rows.map((row, rowIndex) => (
-                            <Tr key={rowIndex}>
+                            <Tr 
+                              key={rowIndex}
+                              _hover={{ bg: tableRowHoverBg }}
+                              transition="background-color 0.2s"
+                            >
                               {Object.values(row).map((cell, cellIndex) => (
                                 <Td key={cellIndex}>{String(cell !== null ? cell : 'NULL')}</Td>
                             ))}
@@ -820,7 +1098,7 @@ const QueryPage = () => {
                     </Table>
                     </Box>
                   ) : (
-                    <Alert status="info">
+                    <Alert status="info" borderRadius="lg">
                       <AlertIcon />
                       No data available for this table
                     </Alert>
@@ -830,8 +1108,9 @@ const QueryPage = () => {
                 <TabPanel px={0}>
                   {tableStructure && tableStructure.length > 0 ? (
                     <Box>
-                      <Table variant="simple" size="sm" mb={4}>
-                        <Thead>
+                      <Card borderRadius="lg" overflow="hidden" mb={4}>
+                        <Table variant="simple" size="sm">
+                          <Thead bg={tableHeaderBg}>
                           <Tr>
                             <Th>Column Name</Th>
                             <Th>Data Type</Th>
@@ -841,22 +1120,40 @@ const QueryPage = () => {
                         </Thead>
                         <Tbody>
                           {tableStructure.map((column, index) => (
-                            <Tr key={index}>
+                              <Tr 
+                                key={index}
+                                _hover={{ bg: tableRowHoverBg }}
+                                transition="background-color 0.2s"
+                              >
                               <Td fontWeight="medium">{column.name}</Td>
-                              <Td>{column.type}</Td>
-                              <Td>{column.nullable === 'YES' ? 'YES' : 'NO'}</Td>
+                                <Td>
+                                  <Badge colorScheme="purple">
+                                    {column.type}
+                                  </Badge>
+                                </Td>
+                                <Td>
+                                  <Badge colorScheme={column.nullable === 'YES' ? 'green' : 'red'} variant="subtle">
+                                    {column.nullable === 'YES' ? 'YES' : 'NO'}
+                                  </Badge>
+                                </Td>
                               <Td>{column.default_value || '-'}</Td>
                             </Tr>
                           ))}
                         </Tbody>
                       </Table>
+                      </Card>
                       
-                      <Button onClick={loadTableStructureAsSQL} leftIcon={<FiEdit />} size="sm">
+                      <Button 
+                        onClick={loadTableStructureAsSQL} 
+                        leftIcon={<FiEdit />}
+                        colorScheme="brand"
+                        borderRadius="full"
+                      >
                         Load as SQL
                       </Button>
                 </Box>
               ) : (
-                    <Alert status="info">
+                    <Alert status="info" borderRadius="lg">
                       <AlertIcon />
                       No structure information available for this table
                     </Alert>
@@ -867,7 +1164,7 @@ const QueryPage = () => {
           </ModalBody>
           
           <ModalFooter>
-            <Button variant="ghost" onClick={onViewTableClose}>Close</Button>
+            <Button variant="ghost" onClick={onViewTableClose} borderRadius="full">Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

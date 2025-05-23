@@ -475,16 +475,16 @@ const Register = () => {
                   <FormControl isInvalid={errors.email}>
                     <FormLabel>Email address</FormLabel>
                     <InputGroup>
-                      <Input
-                        bg={inputBg}
-                        type="email"
-                        name="email"
-                        value={formData.email}
+                    <Input
+                      bg={inputBg}
+                      type="email"
+                      name="email"
+                      value={formData.email}
                         onChange={handleEmailChange}
-                        placeholder="john.doe@example.com"
-                        size="lg"
-                        borderRadius="md"
-                      />
+                      placeholder="john.doe@example.com"
+                      size="lg"
+                      borderRadius="md"
+                    />
                       {emailValidating && (
                         <InputRightElement>
                           <Spinner size="sm" color="blue.500" />

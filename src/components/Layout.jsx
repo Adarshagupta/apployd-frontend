@@ -260,7 +260,7 @@ const MobileNav = ({ isOpen, onToggle, navItems, colorMode, toggleColorMode, cur
                   maxW="180px" 
                   width="100%"
                 />
-              </Box>
+                </Box>
               <CloseButton onClick={onToggle} />
             </Flex>
             

@@ -7,10 +7,14 @@
  */
 
 const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
 
-// Load environment variables
-dotenv.config();
+// Try to load dotenv if not already loaded (avoid error if already loaded by main app)
+try {
+  const dotenv = require('dotenv');
+  dotenv.config();
+} catch (error) {
+  console.log('Dotenv already loaded or not available');
+}
 
 // Email configuration
 const emailConfig = {
@@ -71,6 +75,7 @@ const emailTemplates = {
  */
 const sendEmailHandler = async (req, res) => {
   try {
+    console.log('Email request received:', req.body);
     const { to, subject, templateName, templateData } = req.body;
     
     // Validate required fields

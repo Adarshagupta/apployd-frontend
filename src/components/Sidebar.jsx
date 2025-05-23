@@ -121,7 +121,7 @@ const Sidebar = () => {
             width="100%"
             mx="auto"
           />
-        </Box>
+          </Box>
         
         <Text fontSize="xs" color="gray.500" fontWeight="medium" mb={4} textTransform="uppercase" letterSpacing="wider">
           Core

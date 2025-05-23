@@ -6,6 +6,9 @@ const bcrypt = require('bcrypt');
 const app = express();
 const port = 3081;
 
+// Import the email handler
+const { sendEmailHandler } = require('./src/server/api/email');
+
 // Default PostgreSQL connection parameters
 const PG_CONFIG = {
   host: 'localhost',
@@ -898,6 +901,12 @@ app.get('/api/databases/:id/backups', authenticate, (req, res) => {
       size: Math.floor(Math.random() * 100) + 'MB'
     }
   ]);
+});
+
+// Email endpoint
+app.post('/api/email/send', async (req, res) => {
+  // Pass the request to the email handler
+  return sendEmailHandler(req, res);
 });
 
 // Start the server
